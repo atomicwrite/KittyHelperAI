@@ -9,6 +9,7 @@ namespace KittyHelper
 
         public static partial class KittyViewHelper
         {
+            
             public class TypeScriptIf : TypeScriptStatement
             {
                 private readonly TypescriptConditionStatement condition;

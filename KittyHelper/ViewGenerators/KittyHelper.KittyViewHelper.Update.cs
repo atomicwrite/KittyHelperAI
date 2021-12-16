@@ -155,6 +155,7 @@ export default class {options.ComponentName} extends Vue {{");
                 public string ListOneRequestObjectField { get; set; }
                 public Type[] ReferencedByTypes { get; set; }
                 public bool DisableUpdate { get; set; }
+                public string ResponseObjectName { get; internal set; }
             }
         }
     }

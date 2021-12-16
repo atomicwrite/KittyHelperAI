@@ -7,7 +7,7 @@ namespace KittyHelper
     {
 
         public static partial class KittyViewHelper
-        {
+        { 
             public class TypeScriptClass  : TypeScriptStatement
             {
                 private readonly string name;
@@ -21,6 +21,9 @@ namespace KittyHelper
                 private readonly TypeScriptFunction[] functions;
                 public static TypeScriptClass Vue = new("Vue");
                 private string exportString;
+
+                public string ExternalRequirePath { get;   set; }
+                public string ExportName { get;   set; }
 
                 public TypeScriptClass(string name, VueClassProp[] classProps = null, TypeScriptFunction[] functions = null, TypeScriptClass extends = null, TypeScriptClass[] mixins = null, VueVModel[] Vmodels = null, VueProp[] props = null, TypeScriptClassField[] fields = null, VueWatcher[] watchers = null)
                 {

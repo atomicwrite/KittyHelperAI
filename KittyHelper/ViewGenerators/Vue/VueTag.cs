@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using ServiceStack;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace KittyHelper
 {
@@ -21,7 +23,7 @@ namespace KittyHelper
                 }
                 public string OpenTag()
                 {
-                    string attributesStr = string.Join(" ", attributes);
+                    string attributesStr = attributes.Select(a => a.Render()).Join(" "  );
                     return $"<{tagName} {attributesStr}>";
                 }
                 public string CloseTag()

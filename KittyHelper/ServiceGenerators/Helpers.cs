@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Text;
 using KittyHelper.Options;
 using ServiceStack;
+using static KittyHelper.KittyHelper.KittyViewHelper;
 
 namespace KittyHelper
 {
@@ -197,7 +198,7 @@ namespace KittyHelper
         }
 
         private static CreateListEndPointOptions GenerateCreateListWithReferenceEndpointService(Type t,
-            KittyHelper.ProjectWriter projectWriter,
+            KittyHelper.ProjectWriter projectWriter,TypeScriptClass updateMixin,
             bool OverWrite)
         {
             if (string.IsNullOrEmpty(t.Namespace)) throw new ArgumentException("Type must have a name space");
@@ -208,7 +209,7 @@ namespace KittyHelper
 
 
             var VueFileName = $"{ComponentName}.vue";
-            var ListVueContents = KittyHelper.KittyViewHelper.GenerateListFromReferencePage(t,
+            var ListVueContents = GenerateListFromReferencePage(t,
                 new KittyHelper.KittyViewHelper.ListFromReferenceViewOptions
                 {
                     ComponentName = ComponentName,
@@ -221,8 +222,11 @@ namespace KittyHelper
                     UpdateHttpVerb="Post",
                     ReferenceFieldToUpdate= t.Name,
                     UpdateObjectName = "Update" + t.Name + "Request",
-                    UpdateObjectNameField= t.Name
-                });
+                    UpdateObjectNameField= t.Name,
+                    ResponseObjectName=ServiceClassEndpointOptions.ReturnType
+                }
+                , updateMixin
+                );
 
             var RequestType = ServiceClassEndpointOptions.RequestType;
             var ReturnType = ServiceClassEndpointOptions.ReturnType;
@@ -352,9 +356,14 @@ namespace KittyHelper
             var Update = !t.GetCustomAttributesData().Any(a => a.AttributeType.Name == "NoUpdateViewsAttribute");
             if (Update)
             {
-                GenerateCreateUpdateEndpointService(t, projectWriter, OverWrite, types, Create);
+              var options=  GenerateCreateUpdateEndpointService(t, projectWriter, OverWrite, types, Create);
                 ComponentNames.Add(new KittyHelper.KittyViewHelper.ComponentPath()
                     {Component = "Update" + t.Name, Path = "/Update" + t.Name + "/:id"});
+                GenerateCreateListWithReferenceEndpointService(t, projectWriter, options.UpdateMixin, OverWrite);
+            }
+            else
+            {
+                GenerateCreateListWithReferenceEndpointService(t, projectWriter, null,OverWrite);
             }
 
             if (ReferenceField == null)
@@ -375,9 +384,9 @@ namespace KittyHelper
                         {Component = "Create" + t.Name, Path = "/Create" + t.Name + "/:id"});
                 }
 
-                GenerateCreateListWithReferenceEndpointService(t, projectWriter, OverWrite);
+         
             }
-
+ 
 
             var VueRouter = KittyHelper.KittyViewHelper.GenerateVueAutoRoute(ComponentNames.ToArray());
             GenerateMigration(t, projectWriter, OverWrite);

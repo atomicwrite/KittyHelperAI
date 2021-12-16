@@ -7,10 +7,10 @@
         {
             public class VueWatcher
             {
-                private readonly string setting;
+                private readonly TypeScriptStatement setting;
                 private readonly TypeScriptFunction function;
 
-                public VueWatcher(string setting, TypeScriptFunction function)
+                public VueWatcher(TypeScriptStatement setting, TypeScriptFunction function)
                 {
                     this.setting = setting;
                     this.function = function;
@@ -18,7 +18,7 @@
 
                 internal string Render()
                 {
-                    return $"@Watch({setting}) {function.Render()}";
+                    return $"@Watch({setting.Render()}) {function.Render()}";
                 }
             }
         }

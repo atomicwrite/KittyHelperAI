@@ -17,10 +17,10 @@ namespace KittyHelper
 
                 string maskTypeName = T.Name + "CreateMask";
 
-                CreateComponentTemplate(T, baseComponent);
+                CreateCreateComponentTemplate(T, baseComponent);
                 VueComponentScript script = baseComponent.Script;
 
-                CreateScriptImports(T, options, script);
+                CreateCreateScriptImports(T, options, script);
 
                 TypeScriptClass apiMixin = CreateMixin(T, options, maskTypeName);
                 TypeScriptClass maskMixin = CreateMaskForType(T, maskTypeName);
@@ -38,8 +38,8 @@ namespace KittyHelper
                 return baseComponent.Render();
 
             }
-
-            private static void CreateScriptImports(Type T, CreateViewOptions options, VueComponentScript script)
+         
+            private static void CreateCreateScriptImports(Type T, CreateViewOptions options, VueComponentScript script)
             {
                 script.Imports.Add(new VueImport("vue-property-decorator", "Component", "Vue"));
                 script.Imports.Add(new VueImport("vue-property-decorator", "{Mixins}"));
@@ -47,7 +47,7 @@ namespace KittyHelper
                 script.Imports.Add(new VueImport("@/shared/dtos", options.RequestObjectName, T.Name,options.ResponseObjectName));
             }
 
-            private static void CreateComponentTemplate(Type T, VueComponent baseComponent)
+            private static void CreateCreateComponentTemplate(Type T, VueComponent baseComponent)
             {
                 var root = baseComponent.RootElement;
                 VueElement sectionElement = new VueSection();
@@ -60,7 +60,7 @@ namespace KittyHelper
 
                 containerDiv.AddChild(new VueBAlert("{{  DataModel.Message }}", new VueAttribute(":show", "true"), new VIf("DataModel.Message.length >0")));
 
-                CreateFormFields(T, containerDiv);
+                CreateCreateFormFields(T, containerDiv);
             }
 
             private static TypeScriptClass CreateMaskForType(Type T, string maskTypeName)
@@ -96,7 +96,7 @@ namespace KittyHelper
 
 
 
-            private static void CreateFormFields(Type T, VueElement containerDiv)
+            private static void CreateCreateFormFields(Type T, VueElement containerDiv)
             {
                 var FieldInfos = T.GetProperties();
                 foreach (var field in FieldInfos)

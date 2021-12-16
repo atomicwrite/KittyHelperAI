@@ -117,6 +117,42 @@ namespace KittyHelper
                     <b-form-input id=""input-{Name}"" v-model=""{vModel}""  trim></b-form-input>
                     </b-form-group>";
             }
+
+            public static VueElement GenerateVueInputElement(string Label, string Desc,string Name, string VModel = null, string vueInputType = "text", bool optionsDisableUpdate = false)
+            {
+                
+                
+                BFormGroup bFormGroup = new BFormGroup(new VueAttribute("id", $"fieldset-{Name}"),
+                    new VueAttribute("id", $"fieldset-{Name}"),
+                    new VueAttribute("description", Desc),
+                    new VueAttribute("label", Label),
+                    new VueAttribute("label-for", $"input-{Name}"),
+                    new VueAttribute("valid-feedback", "")
+
+
+                    );
+                if (!string.IsNullOrEmpty(VModel))
+                {
+                    bFormGroup.AddChild(new BFormInput(new VueAttribute("id", ""),
+                        new VueAttribute("id", $"fieldset-{Name}"),
+                        new VueAttribute(":disabled", optionsDisableUpdate.ToString().ToLower()),
+                        new VModelAttribute(VModel),
+                            new VueAttribute("type", vueInputType),
+                        new VueAttribute(":trim", "true")));
+                }
+                else
+                {
+                    bFormGroup.AddChild(new BFormInput(new VueAttribute("id", ""),
+                        new VueAttribute("id", $"fieldset-{Name}"),
+                        new VueAttribute(":disabled", optionsDisableUpdate.ToString().ToLower()),
+                        
+                            new VueAttribute("type", vueInputType),
+                        new VueAttribute(":trim", "true")));
+                }
+
+                return bFormGroup;
+            }
+
             public static VueElement GenerateVueInputElement(PropertyInfo fieldInfo, string vueInputType ="text", bool optionsDisableUpdate = false)
             {
                 var attributes = fieldInfo.GetCustomAttributesData();

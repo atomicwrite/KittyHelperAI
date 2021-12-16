@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Text;
 using KittyHelper.Options;
+using static KittyHelper.KittyHelper.KittyViewHelper;
 
 namespace KittyHelper.ServiceGenerators
 {
@@ -63,7 +64,7 @@ namespace KittyHelper.ServiceGenerators
                 RequestObjectUpdateObjectField = t.Name;
             }
 
-
+             public TypeScriptClass  UpdateMixin { get; set; }
             public string RequestObjectUpdateObjectField { get; set; }
         }
     }
