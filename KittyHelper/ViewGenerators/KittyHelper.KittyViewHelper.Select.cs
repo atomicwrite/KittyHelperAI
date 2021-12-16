@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Linq;
-using System.Reflection;
 using System.Text;
-using ServiceStack;
 
 namespace KittyHelper
 {
@@ -10,17 +8,6 @@ namespace KittyHelper
     {
         public static partial class KittyViewHelper
         {
-            public class SelectViewOptions
-            {
-                public string ComponentName { get; set; }
-                public string RequestObjectField { get; set; }
-                public string HttpVerb { get; set; }
-                public string RequestObjectName { get; set; }
-                public string ResponseObjectField { get; set; }
-                
-                public string DataBaseObjectIdField { get; set; }
-            }
-
             public static string GenerateSelectPage(Type T, SelectViewOptions options)
             {
                 StringBuilder StringBuilder = new();
@@ -43,13 +30,13 @@ namespace KittyHelper
                 var PrimaryKey = FieldInfos.FirstOrDefault(a =>
                     a.GetCustomAttributesData().Any(b => b.AttributeType.Name == "PrimaryKeyAttribute"));
 
-                string KeyField = PrimaryKey != null ? $"a.{PrimaryKey.Name}" : "";
-                string DisplayFieldName = DisplayField != null ? $"a.{DisplayField.Name}" : "``";
-                string DisplayTextName = DisplayText != null ? $"a.{DisplayText.Name}" : "``";
-                string vFor = "v-for=\"a of DataModel\"";
+                var KeyField = PrimaryKey != null ? $"a.{PrimaryKey.Name}" : "";
+                var DisplayFieldName = DisplayField != null ? $"a.{DisplayField.Name}" : "``";
+                var DisplayTextName = DisplayText != null ? $"a.{DisplayText.Name}" : "``";
+                var vFor = "v-for=\"a of DataModel\"";
                 StringBuilder.AppendLine(GenerateVueCard(DisplayFieldName, "``", DisplayTextName, GenerateVueButton(
-                    "Edit",
-                    $"Edit({KeyField})"), vFor));
+                    "Select",
+                    $"Select({KeyField})"), vFor));
 
 
                 StringBuilder.AppendLine("</div></section>");
@@ -68,12 +55,13 @@ import {{ {options.RequestObjectName}, {T.Name} }} from '@/shared/dtos';");
 export default class {options.ComponentName} extends Vue {{");
                 StringBuilder.AppendLine("SearchText:string=''");
                 StringBuilder.AppendLine(" @VModel({ type: Number }) SelectedId!:  number");
-                StringBuilder.AppendLine($"@Watch('SearchText') changed(old:string,newx :string) {{  this.Select{T.Name}();  }}");
-                StringBuilder.AppendLine($"Message : string = \"\"");
-                StringBuilder.AppendLine($"Loading : boolean = false");
-                StringBuilder.AppendLine($"Error : boolean = false");
+                StringBuilder.AppendLine(
+                    $"@Watch('SearchText') changed(old:string,newx :string) {{  this.Select{T.Name}();  }}");
+                StringBuilder.AppendLine("Message : string = \"\"");
+                StringBuilder.AppendLine("Loading : boolean = false");
+                StringBuilder.AppendLine("Error : boolean = false");
                 StringBuilder.AppendLine($"DataModel : {T.Name}[] = []");
-                StringBuilder.AppendLine($"After : number= 0");
+                StringBuilder.AppendLine("After : number= 0");
                 StringBuilder.AppendLine($"async Select{T.Name}() {{");
                 StringBuilder.AppendLine("try{");
                 StringBuilder.AppendLine("this.Error = false;");
@@ -85,7 +73,7 @@ export default class {options.ComponentName} extends Vue {{");
                 StringBuilder.AppendLine("catch(e) {");
                 StringBuilder.AppendLine("console.log(e)");
                 StringBuilder.AppendLine(
-                    $"this.Message = e.message");
+                    "this.Message = e.message");
                 StringBuilder.AppendLine("}");
                 StringBuilder.AppendLine("}");
                 StringBuilder.AppendLine(
@@ -94,11 +82,22 @@ export default class {options.ComponentName} extends Vue {{");
                 StringBuilder.AppendLine(
                     $" Next(){{  this.After  = this.DataModel[this.DataModel.length -1].{options.DataBaseObjectIdField} +1  ;  this.Select{T.Name}(); }} ");
                 StringBuilder.AppendLine(
-                    $" Select(id:number){{  this.SelectedId=id;}} ");
+                    " Select(id:number){  this.SelectedId=id;} ");
                 StringBuilder.AppendLine("}");
                 StringBuilder.AppendLine("</script>");
                 StringBuilder.AppendLine("<style></style>");
                 return StringBuilder.ToString();
+            }
+
+            public class SelectViewOptions
+            {
+                public string ComponentName { get; set; }
+                public string RequestObjectField { get; set; }
+                public string HttpVerb { get; set; }
+                public string RequestObjectName { get; set; }
+                public string ResponseObjectField { get; set; }
+
+                public string DataBaseObjectIdField { get; set; }
             }
         }
     }

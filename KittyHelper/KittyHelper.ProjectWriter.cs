@@ -7,12 +7,8 @@ namespace KittyHelper
     {
         public class ProjectWriter
         {
-            public string ProjectRoot { get; }
-            public string ProjectVueViewRoot { get; }
-            public string ServiceBaseNameSpace { get; }
-            public string ModelBaseNamespace { get; }
-            private readonly string _projectServiceModelRoot;
             private readonly string _projectServiceInterfaceRoot;
+            private readonly string _projectServiceModelRoot;
 
 
             public ProjectWriter(string projectRoot, string projectServiceModelRoot, string projectServiceInterfaceRoot,
@@ -29,11 +25,16 @@ namespace KittyHelper
                 _projectServiceInterfaceRoot = projectServiceInterfaceRoot;
             }
 
+            public string ProjectRoot { get; }
+            public string ProjectVueViewRoot { get; }
+            public string ServiceBaseNameSpace { get; }
+            public string ModelBaseNamespace { get; }
+
             public void WriteCsServiceFile(string typeName,
                 string contents, string folder, bool OverWrite)
             {
                 var FileExportConfig =
-                    new KittyHelper.KittyFileHelper.FileExportConfig(_projectServiceInterfaceRoot, folder,
+                    new KittyFileHelper.FileExportConfig(_projectServiceInterfaceRoot, folder,
                         $"{typeName}.cs", contents, OverWrite);
 
                 KittyFileHelper.WriteFileFromNamespace(FileExportConfig);
@@ -43,7 +44,7 @@ namespace KittyHelper
                 string contents, string folder, bool OverWrite)
             {
                 var FileExportConfig =
-                    new KittyHelper.KittyFileHelper.FileExportConfig(_projectServiceModelRoot, folder,
+                    new KittyFileHelper.FileExportConfig(_projectServiceModelRoot, folder,
                         $"{typeName}.cs", contents, OverWrite);
 
                 KittyFileHelper.WriteFileFromNamespace(FileExportConfig);

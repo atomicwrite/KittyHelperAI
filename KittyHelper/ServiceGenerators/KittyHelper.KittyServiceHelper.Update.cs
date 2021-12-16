@@ -6,19 +6,6 @@ namespace KittyHelper.ServiceGenerators
 {
     public static partial class KittyServiceHelper
     {
-        public class CreateUpdateEndPointOptions : CreateOptions
-        {
-            public CreateUpdateEndPointOptions(Type t, string baseType = null,
-                CreateOptionsAuthenticationOptions authenticate = null,
-                string[] requiredRoles = null) : base(t, baseType ?? "Update" + t.Name, authenticate)
-            {
-                RequestObjectUpdateObjectField = t.Name;
-            }
-
-
-            public string RequestObjectUpdateObjectField { get; set; }
-        }
-
         public static string CreateUpdateEndpointServiceClass(Type t, CreateUpdateEndPointOptions options = null)
         {
             StringBuilder str = new();
@@ -65,6 +52,19 @@ namespace KittyHelper.ServiceGenerators
  }}";
             str.AppendLine(classContents);
             return str.ToString();
+        }
+
+        public class CreateUpdateEndPointOptions : CreateOptions
+        {
+            public CreateUpdateEndPointOptions(Type t, string baseType = null,
+                CreateOptionsAuthenticationOptions authenticate = null,
+                string[] requiredRoles = null) : base(t, baseType ?? "Update" + t.Name, authenticate)
+            {
+                RequestObjectUpdateObjectField = t.Name;
+            }
+
+
+            public string RequestObjectUpdateObjectField { get; set; }
         }
     }
 }

@@ -6,14 +6,13 @@ using System.Text;
 using KittyHelper.Options;
 using ServiceStack;
 
-
 namespace KittyHelper
 {
-    public static partial class CrudHelper
+    public static class CrudHelper
     {
         private static void GenerateMigration(Type type, KittyHelper.ProjectWriter projectWriter, bool ow)
         {
-            string fileName = type.Name + ".cs";
+            var fileName = type.Name + ".cs";
             projectWriter.WriteCsMigrationFile(
                 DatabaseGenerators.KittyHelper.MigrationHelper.GenerateCreateIfNotExists(type), fileName,
                 ow);
@@ -22,10 +21,7 @@ namespace KittyHelper
         private static void GenerateCreateDeleteByIdEndpointService(Type t, KittyHelper.ProjectWriter projectWriter,
             bool OverWrite)
         {
-            if (string.IsNullOrEmpty(t.Namespace))
-            {
-                throw new ArgumentException("Type must have a name space");
-            }
+            if (string.IsNullOrEmpty(t.Namespace)) throw new ArgumentException("Type must have a name space");
 
             var ServiceClassEndpointOptions =
                 new ServiceGenerators.KittyServiceHelper.CreateDeleteByIdEndPointOptions(t);
@@ -36,16 +32,16 @@ namespace KittyHelper
             var ResponseClassEndpointOptions =
                 new ServiceGenerators.KittyServiceHelper.CreateDeleteByIdEndPointOptions(t);
 
-            string serviceClassDefinition =
+            var serviceClassDefinition =
                 ServiceGenerators.KittyServiceHelper.CreateDeleteByIdEndpointServiceClass(t,
                     ServiceClassEndpointOptions);
 
-            string responseClassDefinition =
+            var responseClassDefinition =
                 ServiceGenerators.KittyServiceHelper.CreateDeleteByIdEndpointResponseClass(t,
                     ResponseClassEndpointOptions);
 
 
-            string requestClassDefinition =
+            var requestClassDefinition =
                 ServiceGenerators.KittyServiceHelper.CreateDeleteByIdEndpointRequestClass(t,
                     RequestClassEndpointOptions);
 
@@ -62,41 +58,36 @@ namespace KittyHelper
             GenerateCreateUpdateEndpointService(Type t,
                 KittyHelper.ProjectWriter projectWriter, bool OverWrite, Type[] types, bool create)
         {
-            if (string.IsNullOrEmpty(t.Namespace))
-            {
-                throw new ArgumentException("Type must have a name space");
-            }
+            if (string.IsNullOrEmpty(t.Namespace)) throw new ArgumentException("Type must have a name space");
 
             var ServiceClassEndpointOptions =
                 new ServiceGenerators.KittyServiceHelper.CreateUpdateEndPointOptions(t);
 
 
-            string serviceClassDefinition =
+            var serviceClassDefinition =
                 ServiceGenerators.KittyServiceHelper.CreateUpdateEndpointServiceClass(t,
                     ServiceClassEndpointOptions);
 
-            string responseClassDefinition =
+            var responseClassDefinition =
                 ServiceGenerators.KittyServiceHelper.CreateUpdateEndpointResponseClass(t,
                     ServiceClassEndpointOptions);
 
 
-            string requestClassDefinition =
+            var requestClassDefinition =
                 ServiceGenerators.KittyServiceHelper.CreateUpdateEndpointRequestClass(t, ServiceClassEndpointOptions);
 
             var RequestType = ServiceClassEndpointOptions.RequestType;
             var ReturnType = ServiceClassEndpointOptions.ReturnType;
             var ServiceType = ServiceClassEndpointOptions.ServiceType;
             if (create)
-            {
                 KittyHelper.WriteService(t, projectWriter, requestClassDefinition, responseClassDefinition,
                     serviceClassDefinition,
                     ServiceClassEndpointOptions, OverWrite);
-            }
 
             var ComponentName = "Update" + t.Name;
-            string VueFileName = $"{ComponentName}.vue";
-            string Updateview = KittyHelper.KittyViewHelper.GenerateUpdatePage(t,
-                new KittyHelper.KittyViewHelper.UpdateViewOptions()
+            var VueFileName = $"{ComponentName}.vue";
+            var Updateview = KittyHelper.KittyViewHelper.GenerateUpdatePage(t,
+                new KittyHelper.KittyViewHelper.UpdateViewOptions
                 {
                     ComponentName = ComponentName,
                     HttpVerb = ServiceClassEndpointOptions.HttpVerb,
@@ -106,7 +97,8 @@ namespace KittyHelper
                     ListOneRequestObjectField = "Id",
                     ListOneRequestObjectName = "Get" + t.Name + "ByIdRequest",
                     ReferencedByTypes = types,
-                    DisableUpdate = !create
+                    DisableUpdate = !create,
+                    
                 });
             projectWriter.WriteVueFile(t, VueFileName, Updateview, OverWrite);
             return ServiceClassEndpointOptions;
@@ -117,31 +109,28 @@ namespace KittyHelper
             PropertyInfo referenceField,
             bool OverWrite)
         {
-            if (string.IsNullOrEmpty(t.Namespace))
-            {
-                throw new ArgumentException("Type must have a name space");
-            }
+            if (string.IsNullOrEmpty(t.Namespace)) throw new ArgumentException("Type must have a name space");
 
 
             var ServiceClassEndpointOptions =
                 new ServiceGenerators.KittyServiceHelper.CreateCreateEndPointOptions(t);
 
 
-            string serviceClassDefinition =
+            var serviceClassDefinition =
                 ServiceGenerators.KittyServiceHelper.CreateCreateEndpointServiceClass(t,
                     ServiceClassEndpointOptions);
 
-            string responseClassDefinition =
+            var responseClassDefinition =
                 ServiceGenerators.KittyServiceHelper.CreateCreateEndpointResponseClass(t,
                     ServiceClassEndpointOptions);
 
 
-            string requestClassDefinition =
+            var requestClassDefinition =
                 ServiceGenerators.KittyServiceHelper.CreateCreateEndpointRequestClass(t, ServiceClassEndpointOptions);
             var ComponentName = "Create" + t.Name;
 
-            string CreateVueFile = KittyHelper.KittyViewHelper.GenerateCreateWithReferencePage(t,
-                new KittyHelper.KittyViewHelper.CreateWithReferenceViewOptions()
+            var CreateVueFile = KittyHelper.KittyViewHelper.GenerateCreateWithReferencePage(t,
+                new KittyHelper.KittyViewHelper.CreateWithReferenceViewOptions
                 {
                     ComponentName = ComponentName,
                     HttpVerb = ServiceClassEndpointOptions.HttpVerb,
@@ -153,9 +142,10 @@ namespace KittyHelper
             var RequestType = ServiceClassEndpointOptions.RequestType;
             var ReturnType = ServiceClassEndpointOptions.ReturnType;
             var ServiceType = ServiceClassEndpointOptions.ServiceType;
-            string VueFileName = $"{ComponentName}.vue";
+            var VueFileName = $"{ComponentName}.vue";
 
-            KittyHelper.WriteService(t, projectWriter, requestClassDefinition, responseClassDefinition, serviceClassDefinition,
+            KittyHelper.WriteService(t, projectWriter, requestClassDefinition, responseClassDefinition,
+                serviceClassDefinition,
                 ServiceClassEndpointOptions, OverWrite);
 
             projectWriter.WriteVueFile(t, VueFileName, CreateVueFile, OverWrite);
@@ -164,44 +154,43 @@ namespace KittyHelper
         private static void GenerateCreateCreateEndpointService(Type t, KittyHelper.ProjectWriter projectWriter,
             bool OverWrite)
         {
-            if (string.IsNullOrEmpty(t.Namespace))
-            {
-                throw new ArgumentException("Type must have a name space");
-            }
+            if (string.IsNullOrEmpty(t.Namespace)) throw new ArgumentException("Type must have a name space");
 
 
             var ServiceClassEndpointOptions =
                 new ServiceGenerators.KittyServiceHelper.CreateCreateEndPointOptions(t);
 
 
-            string serviceClassDefinition =
-                ServiceGenerators. KittyServiceHelper.CreateCreateEndpointServiceClass(t,
+            var serviceClassDefinition =
+                ServiceGenerators.KittyServiceHelper.CreateCreateEndpointServiceClass(t,
                     ServiceClassEndpointOptions);
 
-            string responseClassDefinition =
+            var responseClassDefinition =
                 ServiceGenerators.KittyServiceHelper.CreateCreateEndpointResponseClass(t,
                     ServiceClassEndpointOptions);
 
 
-            string requestClassDefinition =
-                ServiceGenerators. KittyServiceHelper.CreateCreateEndpointRequestClass(t, ServiceClassEndpointOptions);
+            var requestClassDefinition =
+                ServiceGenerators.KittyServiceHelper.CreateCreateEndpointRequestClass(t, ServiceClassEndpointOptions);
             var ComponentName = "Create" + t.Name;
 
-            string CreateVueFile = KittyHelper.KittyViewHelper.GenerateCreatePage(t,
-                new KittyHelper.KittyViewHelper.CreateViewOptions()
+            var CreateVueFile = KittyHelper.KittyViewHelper.GenerateCreatePage(t,
+                new KittyHelper.KittyViewHelper.CreateViewOptions
                 {
                     ComponentName = ComponentName,
                     HttpVerb = ServiceClassEndpointOptions.HttpVerb,
                     RequestObjectName = ServiceClassEndpointOptions.RequestType,
-                    RequestObjectField = ServiceClassEndpointOptions.RequestObjectNewObjectField
+                    RequestObjectField = ServiceClassEndpointOptions.RequestObjectNewObjectField,
+                    ResponseObjectName = ServiceClassEndpointOptions.ReturnType
                 });
 
             var RequestType = ServiceClassEndpointOptions.RequestType;
             var ReturnType = ServiceClassEndpointOptions.ReturnType;
             var ServiceType = ServiceClassEndpointOptions.ServiceType;
-            string VueFileName = $"{ComponentName}.vue";
+            var VueFileName = $"{ComponentName}.vue";
 
-            KittyHelper.WriteService(t, projectWriter, requestClassDefinition, responseClassDefinition, serviceClassDefinition,
+            KittyHelper.WriteService(t, projectWriter, requestClassDefinition, responseClassDefinition,
+                serviceClassDefinition,
                 ServiceClassEndpointOptions, OverWrite);
 
             projectWriter.WriteVueFile(t, VueFileName, CreateVueFile, OverWrite);
@@ -211,19 +200,16 @@ namespace KittyHelper
             KittyHelper.ProjectWriter projectWriter,
             bool OverWrite)
         {
-            if (string.IsNullOrEmpty(t.Namespace))
-            {
-                throw new ArgumentException("Type must have a name space");
-            }
+            if (string.IsNullOrEmpty(t.Namespace)) throw new ArgumentException("Type must have a name space");
 
             var ComponentName = "ListWithReference" + t.Name;
             var ServiceClassEndpointOptions =
                 new CreateListEndPointOptions(t);
 
 
-            string VueFileName = $"{ComponentName}.vue";
-            string ListVueContents = KittyHelper.KittyViewHelper.GenerateListFromReferencePage(t,
-                new KittyHelper.KittyViewHelper.ListFromReferenceViewOptions()
+            var VueFileName = $"{ComponentName}.vue";
+            var ListVueContents = KittyHelper.KittyViewHelper.GenerateListFromReferencePage(t,
+                new KittyHelper.KittyViewHelper.ListFromReferenceViewOptions
                 {
                     ComponentName = ComponentName,
                     HttpVerb = ServiceClassEndpointOptions.HttpVerb,
@@ -232,6 +218,10 @@ namespace KittyHelper
                     ResponseObjectField = ServiceClassEndpointOptions.ResponseObjectFieldName,
                     EditObjectRoute = $"/Update{t.Name}/",
                     DataBaseObjectIdField = "Id",
+                    UpdateHttpVerb="Post",
+                    ReferenceFieldToUpdate= t.Name,
+                    UpdateObjectName = "Update" + t.Name + "Request",
+                    UpdateObjectNameField= t.Name
                 });
 
             var RequestType = ServiceClassEndpointOptions.RequestType;
@@ -247,31 +237,28 @@ namespace KittyHelper
             KittyHelper.ProjectWriter projectWriter,
             bool OverWrite)
         {
-            if (string.IsNullOrEmpty(t.Namespace))
-            {
-                throw new ArgumentException("Type must have a name space");
-            }
+            if (string.IsNullOrEmpty(t.Namespace)) throw new ArgumentException("Type must have a name space");
 
             var ComponentName = "List" + t.Name;
             var ServiceClassEndpointOptions =
                 new CreateListEndPointOptions(t);
 
 
-            string serviceClassDefinition =
+            var serviceClassDefinition =
                 ServiceGenerators.KittyServiceHelper.CreateListEndpointServiceClass(t,
                     ServiceClassEndpointOptions);
 
-            string responseClassDefinition =
+            var responseClassDefinition =
                 ServiceGenerators.KittyServiceHelper.CreateListEndpointResponseClass(t,
                     ServiceClassEndpointOptions);
 
 
-            string requestClassDefinition =
+            var requestClassDefinition =
                 ServiceGenerators.KittyServiceHelper.CreateListEndpointRequestClass(t,
                     ServiceClassEndpointOptions);
-            string VueFileName = $"{ComponentName}.vue";
-            string ListVueContents = KittyHelper.KittyViewHelper.GenerateListPage(t,
-                new KittyHelper.KittyViewHelper.ListViewOptions()
+            var VueFileName = $"{ComponentName}.vue";
+            var ListVueContents = KittyHelper.KittyViewHelper.GenerateListPage(t,
+                new KittyHelper.KittyViewHelper.ListViewOptions
                 {
                     ComponentName = ComponentName,
                     HttpVerb = ServiceClassEndpointOptions.HttpVerb,
@@ -286,7 +273,8 @@ namespace KittyHelper
             var ReturnType = ServiceClassEndpointOptions.ReturnType;
             var ServiceType = ServiceClassEndpointOptions.ServiceType;
 
-           KittyHelper.WriteService(t, projectWriter, requestClassDefinition, responseClassDefinition, serviceClassDefinition,
+            KittyHelper.WriteService(t, projectWriter, requestClassDefinition, responseClassDefinition,
+                serviceClassDefinition,
                 ServiceClassEndpointOptions, OverWrite);
 
             projectWriter.WriteVueFile(t, VueFileName, ListVueContents, OverWrite);
@@ -296,10 +284,7 @@ namespace KittyHelper
         private static void GenerateCreateGetByIdEndpointService(Type t, KittyHelper.ProjectWriter projectWriter,
             bool OverWrite)
         {
-            if (string.IsNullOrEmpty(t.Namespace))
-            {
-                throw new ArgumentException("Type must have a name space");
-            }
+            if (string.IsNullOrEmpty(t.Namespace)) throw new ArgumentException("Type must have a name space");
 
             var ServiceClassEndpointOptions =
                 new CreateGetByIdEndpointOptions(t)
@@ -313,16 +298,16 @@ namespace KittyHelper
             var ResponseClassEndpointOptions =
                 new CreateGetByIdEndpointOptions(t);
 
-            string serviceClassDefinition =
+            var serviceClassDefinition =
                 ServiceGenerators.KittyServiceHelper.CreateGetByIdEndpointServiceClass(t,
                     ServiceClassEndpointOptions);
 
-            string responseClassDefinition =
+            var responseClassDefinition =
                 ServiceGenerators.KittyServiceHelper.CreateGetByIdEndpointResponseClass(t,
                     ResponseClassEndpointOptions);
 
 
-            string requestClassDefinition =
+            var requestClassDefinition =
                 ServiceGenerators.KittyServiceHelper.CreateGetByIdEndpointRequestClass(t,
                     RequestClassEndpointOptions);
 
@@ -349,19 +334,27 @@ namespace KittyHelper
                 a.CustomAttributes.Any(b =>
                     b.AttributeType.Name == "ReferencesAttribute" &&
                     Nullable.GetUnderlyingType(a.PropertyType) == null));
+
+            
+            var ChooseableReferenceFields = t.Properties().Where(a =>
+                a.CustomAttributes.Any(b =>
+                    b.AttributeType.Name == "ReferencesAttribute" &&
+                    Nullable.GetUnderlyingType(a.PropertyType) != null)).ToArray();
+
             KittyHelper.KittyViewHelper.ComponentPath createPath = new()
                 {Component = "Create" + t.Name, Path = "/Create" + t.Name};
-            var ComponentNames = new List<KittyHelper.KittyViewHelper.ComponentPath>()
+            var ComponentNames = new List<KittyHelper.KittyViewHelper.ComponentPath>
             {
-                new() {Component = "List" + t.Name, Path = "/List" + t.Name},
+                new() {Component = "List" + t.Name, Path = "/List" + t.Name}
             };
 
-            bool Create = !(t.GetCustomAttributesData().Any(a => a.AttributeType.Name == "NoCreateViewsAttribute"));
-            bool Update = !(t.GetCustomAttributesData().Any(a => a.AttributeType.Name == "NoUpdateViewsAttribute"));
+            var Create = !t.GetCustomAttributesData().Any(a => a.AttributeType.Name == "NoCreateViewsAttribute");
+            var Update = !t.GetCustomAttributesData().Any(a => a.AttributeType.Name == "NoUpdateViewsAttribute");
             if (Update)
             {
                 GenerateCreateUpdateEndpointService(t, projectWriter, OverWrite, types, Create);
-                ComponentNames.Add(new() {Component = "Update" + t.Name, Path = "/Update" + t.Name + "/:id"});
+                ComponentNames.Add(new KittyHelper.KittyViewHelper.ComponentPath()
+                    {Component = "Update" + t.Name, Path = "/Update" + t.Name + "/:id"});
             }
 
             if (ReferenceField == null)
@@ -369,7 +362,8 @@ namespace KittyHelper
                 if (Create)
                 {
                     GenerateCreateCreateEndpointService(t, projectWriter, OverWrite);
-                    ComponentNames.Add(new() {Component = "Create" + t.Name, Path = "/Create" + t.Name});
+                    ComponentNames.Add(new KittyHelper.KittyViewHelper.ComponentPath()
+                        {Component = "Create" + t.Name, Path = "/Create" + t.Name});
                 }
             }
             else
@@ -377,21 +371,22 @@ namespace KittyHelper
                 if (Create)
                 {
                     GenerateCreateCreateWithReferenceEndpointService(t, projectWriter, ReferenceField, OverWrite);
-                    ComponentNames.Add(new() {Component = "Create" + t.Name, Path = "/Create" + t.Name + "/:id"});
+                    ComponentNames.Add(new KittyHelper.KittyViewHelper.ComponentPath()
+                        {Component = "Create" + t.Name, Path = "/Create" + t.Name + "/:id"});
                 }
 
                 GenerateCreateListWithReferenceEndpointService(t, projectWriter, OverWrite);
             }
 
 
-            string VueRouter = KittyHelper.KittyViewHelper.GenerateVueAutoRoute(ComponentNames.ToArray());
+            var VueRouter = KittyHelper.KittyViewHelper.GenerateVueAutoRoute(ComponentNames.ToArray());
             GenerateMigration(t, projectWriter, OverWrite);
             var ServiceClassEndpointOptions = GenerateCreateListEndpointService(t, projectWriter, OverWrite);
             GenerateCreateGetByIdEndpointService(t, projectWriter, OverWrite);
             var ComponentName = "Select" + t.Name;
-            string VueFileName = $"{ComponentName}.vue";
-            string SelectView = KittyHelper.KittyViewHelper.GenerateSelectPage(t,
-                new KittyHelper.KittyViewHelper.SelectViewOptions()
+            var VueFileName = $"{ComponentName}.vue";
+            var SelectView = KittyHelper.KittyViewHelper.GenerateSelectPage(t,
+                new KittyHelper.KittyViewHelper.SelectViewOptions
                 {
                     ComponentName = ComponentName,
                     HttpVerb = ServiceClassEndpointOptions.HttpVerb,
@@ -402,13 +397,26 @@ namespace KittyHelper
                     DataBaseObjectIdField = "Id"
                 });
             projectWriter.WriteVueFile(t, VueFileName, SelectView, OverWrite);
-
+            foreach(var referenceField in ChooseableReferenceFields)
+            {
+                var GenerateSelectAgainstAssociation = KittyHelper.KittyViewHelper.GenerateSelectAgainstAssociationPage(t,
+           new KittyHelper.KittyViewHelper.SelectAgainstAssociationViewOptions
+           {
+               ComponentName = "GenerateSelectAgainstAssociation" + t.Name,
+               HttpVerb = ServiceClassEndpointOptions.HttpVerb,
+               RequestObjectName = ServiceClassEndpointOptions.RequestType,
+               RequestObjectField = ServiceClassEndpointOptions.RequestObjectAfterField,
+               ResponseObjectField = ServiceClassEndpointOptions.ResponseObjectFieldName,
+               DataBaseObjectIdField = "Id"
+           });
+                projectWriter.WriteVueFile(t, VueFileName, SelectView, OverWrite);
+            }
 
             projectWriter.WriteVueFile(t, "router.ts", VueRouter, OverWrite);
         }
     }
 
-    public static partial class KittyServiceHelper
+    public static class KittyServiceHelper
     {
         public static string WrapWithUsingsAndNameSpace(Type t, string classContent,
             WrapWithClassAndNameSpaceOptions options = null)
@@ -429,9 +437,17 @@ namespace KittyHelper
 
         public WrapWithClassAndNameSpaceOptions(Type type)
         {
-            usings = new();
+            usings = new List<string>();
             _nameSpace = type.Namespace ?? "System." + type.Name;
         }
+
+        private List<string> usings { get; }
+
+        public string Usings => string.Join(Environment.NewLine, usings);
+
+        public string NameSpace => $" namespace {_nameSpace} {{";
+
+        public string NameSpaceClose { get; set; } = "}";
 
         public void AddUsings(IEnumerable<string> usings)
         {
@@ -447,19 +463,5 @@ namespace KittyHelper
         {
             _nameSpace = ns;
         }
-
-        private List<string> usings { get; set; }
-
-        public string Usings
-        {
-            get => string.Join(Environment.NewLine, usings);
-        }
-
-        public string NameSpace
-        {
-            get => $" namespace {_nameSpace} {{";
-        }
-
-        public string NameSpaceClose { get; set; } = "}";
     }
 }

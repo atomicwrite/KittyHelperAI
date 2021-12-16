@@ -1,0 +1,11 @@
+{
+  "Version": 1,
+  "ProjectMap": {
+    "5b983724-5777-447c-9f3c-aced199d323d": {
+      "ProjectGuid": "5b983724-5777-447c-9f3c-aced199d323d",
+      "DisplayName": "KittyHelper",
+      "ColorIndex": 0
+    }
+  },
+  "NextColorIndex": 1
+}

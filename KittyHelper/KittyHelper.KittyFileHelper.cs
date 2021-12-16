@@ -30,7 +30,7 @@ namespace KittyHelper
             RequestWrapperOptions.SetNameSpace($"{projectWriter.ModelBaseNamespace}.{t.Name}Models");
 
             ResponseWrapperOptions.AddUsing($"using {t.Namespace};");
-            ResponseWrapperOptions.AddUsing($"using System.Collections.Generic;");
+            ResponseWrapperOptions.AddUsing("using System.Collections.Generic;");
             RequestWrapperOptions.AddUsing("using ServiceStack;");
             RequestWrapperOptions.AddUsing("using System.Collections.Generic;");
             RequestWrapperOptions.AddUsing($"using {projectWriter.ModelBaseNamespace}.{t.Name}Models;");
@@ -41,14 +41,14 @@ namespace KittyHelper
             var ResponseFolder = $"{t.Name}Models{Path.DirectorySeparatorChar}";
             var ServiceFolder = $"{t.Name}Service{Path.DirectorySeparatorChar}";
 
-            string requestClass =
+            var requestClass =
                 KittyServiceHelper.WrapWithUsingsAndNameSpace(t, requestClassDefinition, RequestWrapperOptions);
 
-            string responseClass =
-                KittyServiceHelper. WrapWithUsingsAndNameSpace(t, responseClassDefinition, ResponseWrapperOptions);
+            var responseClass =
+                KittyServiceHelper.WrapWithUsingsAndNameSpace(t, responseClassDefinition, ResponseWrapperOptions);
 
-            string servceClass =
-                KittyServiceHelper.  WrapWithUsingsAndNameSpace(t, serviceClassDefinition, ServiceWrapperOptions);
+            var servceClass =
+                KittyServiceHelper.WrapWithUsingsAndNameSpace(t, serviceClassDefinition, ServiceWrapperOptions);
 
 
             projectWriter.WriteCsModelFile(options.RequestType, requestClass, RequestFolder, OverWrite);
@@ -57,6 +57,7 @@ namespace KittyHelper
 
             projectWriter.WriteCsServiceFile(options.ServiceType, servceClass, ServiceFolder, OverWrite);
         }
+
         public static partial class KittyFileHelper
         {
             public static void WriteFileFromNamespace(FileExportConfig config)
@@ -78,10 +79,7 @@ namespace KittyHelper
                     Directory.CreateDirectory(exportPath);
 
                 var exportFullPath = exportPath + config.FileName;
-                if (File.Exists(exportPath) && !config.OverWrite)
-                {
-                    return;
-                }
+                if (File.Exists(exportPath) && !config.OverWrite) return;
 
                 File.WriteAllText(exportFullPath, config.Contents);
             }
