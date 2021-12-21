@@ -16,7 +16,7 @@
                     return base.ToString();
                 }
 
-                internal string Render()
+                public string Render()
                 {
                     return RootElement.Render() + Script.Render();
                 }

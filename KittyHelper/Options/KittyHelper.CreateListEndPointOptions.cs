@@ -2,12 +2,13 @@
 
 namespace KittyHelper.Options
 {
-    public class CreateListEndPointOptions : CreateOptions
+    public class CreateListEndPointOptions<A> : CreateOptions<A>
     {
-        public CreateListEndPointOptions(Type t, string baseType = null,
+        public CreateListEndPointOptions(string baseNameSpace,  string baseType = null,
             CreateOptionsAuthenticationOptions authenticate = null,
-            string[] requiredRoles = null) : base(t, baseType ?? "List" + t.Name, authenticate)
+            string[] requiredRoles = null) : base( baseType ?? "List" + (typeof(A)).Name,baseNameSpace, authenticate)
         {
+            var t = typeof(A);
             ResponseObjectFieldName = $"{t.Name}s";
         }
 
@@ -15,5 +16,6 @@ namespace KittyHelper.Options
         public string DbModelIdfield { get; set; } = "Id";
         public string RecordReturnCountLimit { get; set; } = "50";
         public string ResponseObjectFieldName { get; set; }
+        public string ComponentAfterFieldName { get; set; } = "After";
     }
 }

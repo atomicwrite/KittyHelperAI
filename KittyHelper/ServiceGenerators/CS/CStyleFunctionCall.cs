@@ -1,24 +1,21 @@
 ﻿using ServiceStack;
 using System;
 using System.Linq;
+using KittyHelper.ServiceGenerators.CS;
 
 namespace KittyHelper
 {
-    public static partial class KittyHelper
-    {
-
-        public static partial class KittyViewHelper
-        {
-            public class TypescriptFunctionCall : TypeScriptStatement
+   
+            public class CStyleFunctionCall : CStyleStatement
             {
                 private readonly string functionname;
-                private readonly TypeScriptFunctionArguments[] calls;
+                private readonly CStyleFunctionArguments[] calls;
                 private readonly bool _await;
 
-                public TypescriptFunctionCall(string functionname, TypeScriptFunctionArguments[] calls=null, bool @await = false)
+                public CStyleFunctionCall(string functionname, CStyleFunctionArguments[] calls=null, bool @await = false)
                 {
                     this.functionname = functionname;
-                    this.calls = calls ?? Array.Empty<TypeScriptFunctionArguments>();
+                    this.calls = calls ?? Array.Empty<CStyleFunctionArguments>();
                     _await = @await;
                 }
                 public override string Render()
@@ -29,5 +26,4 @@ namespace KittyHelper
                 }
             }
         }
-    }
-}
+  

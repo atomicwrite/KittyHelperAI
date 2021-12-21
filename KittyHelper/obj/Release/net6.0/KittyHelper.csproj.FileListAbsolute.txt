@@ -9,3 +9,4 @@ C:\Mine\KittyHelper\KittyHelper\KittyHelper\obj\Release\net6.0\KittyHelper.cspro
 C:\Mine\KittyHelper\KittyHelper\KittyHelper\obj\Release\net6.0\KittyHelper.dll
 C:\Mine\KittyHelper\KittyHelper\KittyHelper\obj\Release\net6.0\ref\KittyHelper.dll
 C:\Mine\KittyHelper\KittyHelper\KittyHelper\obj\Release\net6.0\KittyHelper.pdb
+C:\Mine\KittyHelper\KittyHelper\KittyHelper\obj\Release\net6.0\KittyHelper.csproj.AssemblyReference.cache

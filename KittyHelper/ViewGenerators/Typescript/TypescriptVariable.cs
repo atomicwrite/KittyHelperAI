@@ -1,8 +1,10 @@
-﻿namespace KittyHelper
+﻿using KittyHelper.ServiceGenerators.CS;
+
+namespace KittyHelper
 {
     public static partial class KittyHelper
     {
-
+    
         public static partial class KittyViewHelper
         {
             public class TypescriptVariable  : TypeScriptStatement

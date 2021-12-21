@@ -2,11 +2,11 @@
 
 namespace KittyHelper.Options
 {
-    public class CreateGetByIdEndpointOptions : CreateOptions
+    public class CreateGetByIdEndpointOptions<A> : CreateOptions<A>
     {
-        public CreateGetByIdEndpointOptions(Type t, string baseType = null,
+        public CreateGetByIdEndpointOptions(string baseNameSpace, string baseType = null,
             CreateOptionsAuthenticationOptions authenticate = null,
-            string[] requiredRoles = null) : base(t, baseType ?? $"Get{t.Name}ById", authenticate)
+            string[] requiredRoles = null) : base( baseType ?? $"Get{typeof(A).Name}ById", baseNameSpace,authenticate)
         {
         }
 

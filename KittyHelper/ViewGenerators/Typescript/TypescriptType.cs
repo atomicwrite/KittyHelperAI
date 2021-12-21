@@ -2,7 +2,7 @@
 {
     public static partial class KittyHelper
     {
-
+    
         public static partial class KittyViewHelper
         {
             public class TypescriptType

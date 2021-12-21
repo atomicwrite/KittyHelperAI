@@ -1,16 +1,18 @@
-﻿namespace KittyHelper
+﻿using KittyHelper.ServiceGenerators.CS;
+
+namespace KittyHelper
 {
     public static partial class KittyHelper
     {
        
         public static partial class KittyViewHelper
         {
-            public class TypescriptAssignment : TypeScriptStatement
+            public class CStyleAssignment : CStyleStatement
             {
-                private readonly TypescriptVariable variable;
-                private readonly TypeScriptStatement statement;
+                private readonly CStyleVariable variable;
+                private readonly CStyleStatement statement;
 
-                public TypescriptAssignment(TypescriptVariable variable, TypeScriptStatement statement)
+                public CStyleAssignment(CStyleVariable variable, CStyleStatement statement)
                 {
                     this.variable = variable;
                     this.statement = statement;

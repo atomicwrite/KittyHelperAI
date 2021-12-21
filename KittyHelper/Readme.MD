@@ -1,6 +1,6 @@
 ﻿# Kitty Helper
 
-- V.01
+- V.04
 - Builds C# Webservices for a type
 - Builds Vue crud files
 - Wharfs reference structures and build appropriate trees into the forms
@@ -9,55 +9,52 @@
 # Usage
  ```c#
  
-    Type t = typeof(rabblebabble)
-    var ServiceClassEndpointOptions =
-                new KittyServiceHelper.CreateCreateEndPointOptions(t);
-
-                   string requestClassDefinition =
-                KittyServiceHelper.CreateCreateEndpointRequestClass(t, ServiceClassEndpointOptions);
-                
-                     string serviceClassDefinition =
-                KittyServiceHelper.CreateCreateEndpointServiceClass(t,
-                    ServiceClassEndpointOptions);
-
-            string responseClassDefinition =
-               KittyServiceHelper.CreateCreateEndpointResponseClass(t,
-                    ServiceClassEndpointOptions);
-             
-             var RequestType = ServiceClassEndpointOptions.RequestType;
-            var ReturnType = ServiceClassEndpointOptions.ReturnType;
-            var ServiceType = ServiceClassEndpointOptions.ServiceType;
-                    
-                    KittyHelper.WriteService(t, projectWriter, requestClassDefinition, responseClassDefinition, serviceClassDefinition,
-                    RequestType, ReturnType, ServiceType, OverWrite);
-                    
-                    
-
+         var t = typeof(T);
+    var projectWriter = GetProjectWriter();
+    var createUpdateEndPointOptions = new CreateCreateEndPointOptions<T>(projectWriter.ModelBaseNamespace);
+    var generateUpdateEndPoint = new CreateCreateEndPoint<T>(createUpdateEndPointOptions);
+    var updateVueGenerator = new CreateVueGenerator<T>(createUpdateEndPointOptions);
+    
+    projectWriter.GenerateServiceAndVue<T>(updateVueGenerator, generateUpdateEndPoint, createUpdateEndPointOptions);
 
 ```
+# Basic Ideology
+0. TypescriptStatement is a basic printable statement, everything inherits from it.
+0. You can cast a string implicityl to `TypeScriptStatement` to make writing it easier
+0. CStyleStatement is a basic printable statement, everything inherits from it (on the c side)
+0. You can cast a string implicitly to `CStyleStatement` to make writing it easier
+0. Both have classes that inherit to make them easier like `CStyleIf` or `TypeScriptClassFunction` to keep your {  } and in check.
+0. Vue templates can be generated using a `VueElement`. VueElements take a `VueAttribute` and again there are some premade like `VueClick` and also some premade vue elements like `BButton`
 
 
-------------------------
+# Endpoint Classes
+0. CreateCreateEndPoint
+0. CreateListEndPoint
+0. CreateUpdateEndPoint
 
-# or 
-
-- You can use the crudgenerator AI
+* Can be inherited 
 
 ```c#
-
-var projectWriter = GetProjectWriter();
-            var t = typeof(WiggleWaggleThatBazzle);
-            CrudHelper. GenerateData(t, projectWriter, new Type[] {typeof(SomeOtherTypeConnectedByTree)});
-
-
+        protected virtual CStyleStatement GenerateDatabaseMethod()
+        {
+            return
+                $" var count= Db.Update( {options.RequestObjectName}.{options.RequestObjectUpdateObjectField});";
+        }
 
 ```
 
-#To do
-`Completely automate the tree walking.`
+for example can be overrode to 
 
-`Namespaces and coding conventions.` 
- 
-`Add more attributes for control of how things are displayed. Right now we have DisplayTitleAttribute which sets what field shows up. If it doesn't find one it should just guess based on common names like "Name" or "title"`
+```c#
+        protected override CStyleStatement GenerateDatabaseMethod()
+        {
+            return "{options.RequestObjectName}.Apple = 2" + 
+                $" var count= Db.Update( {options.RequestObjectName}.{options.RequestObjectUpdateObjectField} );";
+        }
 
-`Wharfen zie`
+```
+
+or what ever your heart desires. All the classes are like this to make generating out a create/list/update with custom stampable functionality very fast but also easy to maintain.
+
+
+One example would be to create an "updateonly on a list of fields by reading the properties. I'm sure I'll add those later but the sky is the limit"

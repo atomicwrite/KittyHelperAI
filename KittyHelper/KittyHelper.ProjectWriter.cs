@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using KittyHelper.Options;
 
 namespace KittyHelper
 {
@@ -10,6 +11,39 @@ namespace KittyHelper
             private readonly string _projectServiceInterfaceRoot;
             private readonly string _projectServiceModelRoot;
 
+            public void GenerateServiceAndVue<T>(ICreateAVueComponent vueRenderer, ICreateAnEndPoint serviceGenerator,
+                CreateOptions<T> options)
+            {
+                var t = typeof(T);
+
+                var vueComponent = vueRenderer.Create();
+                var vueFileContents = vueComponent.Render();
+                var service = serviceGenerator.Create();
+                var requestObject = serviceGenerator.CreateRequestClass();
+                var responseObject = serviceGenerator.CreateResponseType();
+
+                var requestFolder = $"{t.Name}Models{Path.DirectorySeparatorChar}";
+                var responseFolder = $"{t.Name}Models{Path.DirectorySeparatorChar}";
+                var serviceFolder = $"{t.Name}Service{Path.DirectorySeparatorChar}";
+
+                WriteVueFile(t, options.ComponentName + ".vue", vueFileContents, true);
+                WriteCsServiceFile(options.ServiceObjectType, service.Render(), serviceFolder, true);
+                WriteCsModelFile(options.ResponseObjectType, responseObject.Render(), responseFolder, true);
+                WriteCsModelFile(options.RequestObjectType, requestObject.Render(), requestFolder, true);
+            //    WriteAutoRoute(options, t);
+            }
+
+            private void WriteAutoRoute<T>(CreateOptions<T> options, Type t)
+            {
+                WriteVueFile(t, "router.ts", KittyViewHelper.GenerateVueAutoRoute(new KittyViewHelper.ComponentPath[]
+                {
+                    new KittyViewHelper.ComponentPath()
+                    {
+                        Component = options.ComponentName ,
+                        Path = "/" + options.ComponentName
+                    }
+                }), true);
+            }
 
             public ProjectWriter(string projectRoot, string projectServiceModelRoot, string projectServiceInterfaceRoot,
                 string projectVueViewRoot, string ServiceBaseNameSpace, string ModelBaseNamespace)

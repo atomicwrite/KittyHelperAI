@@ -6,6 +6,7 @@ namespace KittyHelper
 {
     public static partial class KittyHelper
     {
+        /*
         public static void WriteService(Type t, ProjectWriter projectWriter, string requestClassDefinition,
             string responseClassDefinition, string serviceClassDefinition, CreateOptions options, bool OverWrite)
         {
@@ -51,13 +52,13 @@ namespace KittyHelper
                 KittyServiceHelper.WrapWithUsingsAndNameSpace(t, serviceClassDefinition, ServiceWrapperOptions);
 
 
-            projectWriter.WriteCsModelFile(options.RequestType, requestClass, RequestFolder, OverWrite);
+            projectWriter.WriteCsModelFile(options.RequestObjectType, requestClass, RequestFolder, OverWrite);
 
-            projectWriter.WriteCsModelFile(options.ReturnType, responseClass, ResponseFolder, OverWrite);
+            projectWriter.WriteCsModelFile(options.ResponseObjectType, responseClass, ResponseFolder, OverWrite);
 
             projectWriter.WriteCsServiceFile(options.ServiceType, servceClass, ServiceFolder, OverWrite);
         }
-
+*/
         public static partial class KittyFileHelper
         {
             public static void WriteFileFromNamespace(FileExportConfig config)

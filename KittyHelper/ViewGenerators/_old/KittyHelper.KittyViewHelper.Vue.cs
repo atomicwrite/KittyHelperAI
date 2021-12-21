@@ -166,7 +166,7 @@ namespace KittyHelper
                 if (LabelAttr != null && LabelAttr.NamedArguments != null && LabelAttr.NamedArguments.Count > 0)
                     Label = LabelAttr.NamedArguments.First().ToString();
                 BFormGroup bFormGroup = new BFormGroup(new VueAttribute("id", $"fieldset-{fieldInfo.Name}"),
-                    new VueAttribute("id", $"fieldset-{fieldInfo.Name}"),
+                
                     new VueAttribute("description", Desc),
                     new VueAttribute("label", Label),
                     new VueAttribute("label-for", $"input-{fieldInfo.Name}"),
@@ -175,7 +175,7 @@ namespace KittyHelper
                 
                     );
 
-                bFormGroup.AddChild(new BFormInput(new VueAttribute("id", ""),
+                bFormGroup.AddChild(new BFormInput( 
                     new VueAttribute("id", $"fieldset-{fieldInfo.Name}"),
                     new VueAttribute(":disabled", optionsDisableUpdate.ToString().ToLower()),
                     new VModelAttribute($"DataModel.{fieldInfo.Name}"),

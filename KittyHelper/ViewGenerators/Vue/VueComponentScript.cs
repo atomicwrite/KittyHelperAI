@@ -19,6 +19,7 @@ namespace KittyHelper
                     var imports = string.Join(Environment.NewLine, Imports.Select(a => a.Render()));
                     var classes = string.Join(Environment.NewLine, VueClass.Select(a => a.Render()));
                     return $@"<script lang=""ts"">
+                            console.log("""");
                             {imports}
                             {classes}
                             </script>";

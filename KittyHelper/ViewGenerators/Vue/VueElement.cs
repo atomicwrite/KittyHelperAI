@@ -19,7 +19,7 @@ namespace KittyHelper
                 {
                     this.children = children is not null ? (new(children)) : (new());
                     this.tag = tag;
-                    this.textContent = textContent;
+                    this.textContent = textContent ??"";
                 }
 
 
@@ -29,7 +29,7 @@ namespace KittyHelper
                 }
                 public string Render()
                 {
-                    string content = string.Join(Environment.NewLine, children.Select(a => a.Render()));
+                    string content = textContent+ string.Join(Environment.NewLine, children.Select(a => a.Render()));
                     return tag.OpenTag() + content + tag.CloseTag();
                 }
             }
