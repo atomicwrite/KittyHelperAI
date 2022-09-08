@@ -171,7 +171,7 @@ namespace KittyHelper
                         new TypescriptAssignment(
                             new TypescriptVariable("const", "Response",
                                 new TypescriptType(_options.ResponseObjectType)), apiCallStatement),
-                        " this.ApiCallSuccess = Response.Success;",
+                        " this.ApiCallSuccess = Response.Success;", 
                         " this.ApiCallMessage = Response.Message;",
                         $" if ( Response.Success) {{",
              
