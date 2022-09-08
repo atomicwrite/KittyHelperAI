@@ -27,7 +27,7 @@ namespace KittyHelper.ServiceGenerators
             {
                 var t = typeof(A);
                 RequestObjectNewObjectField = t.Name;
-                
+                VueRouterDirectory = t.Name;
             }
 
 

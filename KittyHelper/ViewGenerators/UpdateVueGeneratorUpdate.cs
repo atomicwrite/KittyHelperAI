@@ -80,12 +80,13 @@ namespace KittyHelper
         }
 
         private TypeScriptClass CreateUpdateMaskForType()
-        {
+        {     //init?: Partial<ResponseError>
+            //(Object as any).assign(this, init);
             var superCall = new TypescriptFunctionCall("super");
             TypeScriptStatement[] block = new TypeScriptStatement[]
             {
                 superCall,
-                new TypescriptFunctionCall("Object.assign", new TypeScriptFunctionArguments[]
+                new TypescriptFunctionCall("(Object as any).assign", new TypeScriptFunctionArguments[]
                 {
                     new TypeScriptFunctionArguments("this"),
                     new TypeScriptFunctionArguments("originalObject")
@@ -101,7 +102,7 @@ namespace KittyHelper
             };
             TypeScriptParameter[] parameters = new TypeScriptParameter[]
             {
-                new TypeScriptParameter("originalObject", new TypescriptTypeDeclaration(T.Name))
+                new TypeScriptParameter("init?", new TypescriptTypeDeclaration("Partial<" + _maskTypeName + ">"))
             };
             TypeScriptFunction[] functions = new TypeScriptFunction[]
             {

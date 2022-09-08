@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
+using KittyHelper.DatabaseGenerators;
 using KittyHelper.Options;
+using ServiceStack;
 using static KittyHelper.KittyHelper.KittyViewHelper;
 
 namespace KittyHelper
@@ -67,7 +70,7 @@ namespace KittyHelper
             script.Imports.Add(new VueImport("vue-property-decorator", "Component", "Vue"));
             script.Imports.Add(new VueImport("vue-property-decorator", "{Mixins}"));
             script.Imports.Add(new VueImport("@/shared", "{client}"));
-            script.Imports.Add(new VueImport("@/shared/dtos", _options.RequestObjectName, T.Name,
+            script.Imports.Add(new VueImport("@/shared/dtos", _options.RequestObjectType, T.Name,
                 _options.ResponseObjectType));
         }
 
@@ -107,7 +110,8 @@ namespace KittyHelper
             var classFields = new TypeScriptClassField[]
             {
                 new TypeScriptClassField("DataModel", new TypescriptTypeDeclaration(_maskTypeName + "[]"),
-                    "[]")
+                    "[]"),
+                  new TypeScriptClassField("After", new TypescriptTypeDeclaration("number"),"0"),
             };
             VueClassProp ComponentProp = new VueClassProp("Component", "{ components: {}}");
             var componentClass = new TypeScriptClass(_options.ComponentName, new[] {ComponentProp}, null, null,
@@ -155,7 +159,7 @@ namespace KittyHelper
             TypeScriptFunctionArguments[] functionArguments = new TypeScriptFunctionArguments[]
             {
                 new TypeScriptFunctionArguments(
-                    $"new {_options.RequestObjectName}  ( {{ {_options.RequestObjectAfterField} : {_options.ComponentAfterFieldName} }} ) ")
+                    $"new {_options.RequestObjectType}  ( {{ {_options.RequestObjectAfterField} : {_options.ComponentAfterFieldName} }} ) ")
             };
             var apiCallStatement =
                 new TypescriptFunctionCall($"client.{_options.HttpVerb.ToLower()}", functionArguments, true);
@@ -166,12 +170,12 @@ namespace KittyHelper
                     {
                         new TypescriptAssignment(
                             new TypescriptVariable("const", "Response",
-                                new TypescriptType(_options.ResponseObjectName)), apiCallStatement),
+                                new TypescriptType(_options.ResponseObjectType)), apiCallStatement),
                         " this.ApiCallSuccess = Response.Success;",
                         " this.ApiCallMessage = Response.Message;",
                         $" if ( Response.Success) {{",
-                        "DataModel.clear()",
-                        " Response.{_options.ResponseObjectFieldName}.forEach(DataModel.add)",
+             
+                        $" Response.{_options.ResponseObjectFieldName}.forEach(DataModel.append)",
                         "}"
                     },
                     new TypeScriptStatement[] {" DataModel.Message = e.message;", "console.log(e)"})
@@ -181,9 +185,15 @@ namespace KittyHelper
             var apiMessageField =
                 new TypeScriptClassField("ApiCallMessage", new TypescriptTypeDeclaration("string"), "\"\"");
 
+            List< TypeScriptParameter> listParamaters = new List<TypeScriptParameter>( new [] { new TypeScriptParameter("DataModel", new TypescriptTypeDeclaration(_maskTypeName + "[]")) });
+            
+            foreach (var field in _options.SearchFields)
+            {
+                listParamaters.Add(new TypeScriptParameter(field.Name, new TypescriptTypeDeclaration(TypeToInput(field.TypeName()))));
+            }
             var createFunction = new TypeScriptFunction("List" + T.Name,
                 new TypescriptTypeDeclaration(new TypescriptType(null)),
-                true, new[] {new TypeScriptParameter("DataModel", new TypescriptTypeDeclaration(_maskTypeName + "[]"))},
+                true, listParamaters.ToArray(),
                 block);
 
             var apiMixin = new TypeScriptClass(T.Name + "ApiMixin",

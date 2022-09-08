@@ -78,14 +78,17 @@ namespace KittyHelper
 
         private TypeScriptClass CreateMaskForType()
         {
+            //init?: Partial<ResponseError>
+            //(Object as any).assign(this, init);
             var superCall = new TypescriptFunctionCall("super");
             TypeScriptStatement[] block = new TypeScriptStatement[]
             {
                 superCall,
-                new TypescriptFunctionCall("Object.assign", new TypeScriptFunctionArguments[]
+                ";",
+                new TypescriptFunctionCall("(Object as any).assign", new TypeScriptFunctionArguments[]
                 {
                     new TypeScriptFunctionArguments("this"),
-                    new TypeScriptFunctionArguments("originalObject")
+                    new TypeScriptFunctionArguments("init")
                 })
             };
 
@@ -98,7 +101,7 @@ namespace KittyHelper
             };
             TypeScriptParameter[] parameters = new TypeScriptParameter[]
             {
-                new TypeScriptParameter("originalObject", new TypescriptTypeDeclaration(T.Name))
+                new TypeScriptParameter("init?", new TypescriptTypeDeclaration("Partial<" +_maskTypeName + ">"))
             };
             TypeScriptFunction[] functions = new TypeScriptFunction[]
             {
@@ -107,6 +110,7 @@ namespace KittyHelper
             };
             TypeScriptClass maskMixin =
                 new(_maskTypeName, fields: fields, functions: functions, extends: new TypeScriptClass(T.Name));
+            
             maskMixin.ExportNonDefault();
             return maskMixin;
         }
@@ -123,7 +127,7 @@ namespace KittyHelper
                 containerDiv.AddChild(GenerateVueInputElement(field, typeStr));
             }
 
-            containerDiv.AddChild(new BButton("Create", new VueClickAttribute($"Create{T.Name}")));
+            containerDiv.AddChild(new BButton("Create", new VueClickAttribute($"Create{T.Name}(DataModel)")));
         }
 
         private TypeScriptClass CreateComponentClass(TypeScriptClass apiMixin)
@@ -131,7 +135,7 @@ namespace KittyHelper
             var classFields = new TypeScriptClassField[]
             {
                 new TypeScriptClassField("DataModel", new TypescriptTypeDeclaration(_maskTypeName),
-                    $"new {_maskTypeName}(new {T.Name}())")
+                    $"new {_maskTypeName}(new {T.Name}({{}}))")
             };
             VueClassProp ComponentProp = new VueClassProp("Component", "{ components: {}}");
             var componentClass = new TypeScriptClass(_options.ComponentName, new[] {ComponentProp}, null, null,
@@ -169,8 +173,9 @@ namespace KittyHelper
                 new TypescriptTypeDeclaration(new TypescriptType(null)),
                 true, new[] {new TypeScriptParameter("DataModel", new TypescriptTypeDeclaration(_maskTypeName))},
                 block);
+            VueClassProp ComponentProp = new VueClassProp("Component", "{ components: {}}");
 
-            var apiMixin = new TypeScriptClass(T.Name + "ApiMixin", null, new TypeScriptFunction[] {createFunction},
+            var apiMixin = new TypeScriptClass(T.Name + "ApiMixin", new []{ComponentProp}, new TypeScriptFunction[] {createFunction},
                 TypeScriptClass.Vue);
             apiMixin.ExportNonDefault();
             return apiMixin;

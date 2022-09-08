@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using KittyHelper.Options;
+using Microsoft.Extensions.Options;
 
 namespace KittyHelper
 {
@@ -27,6 +28,7 @@ namespace KittyHelper
                 var serviceFolder = $"{t.Name}Service{Path.DirectorySeparatorChar}";
 
                 WriteVueFile(t, options.ComponentName + ".vue", vueFileContents, true);
+                WriteVueRouterFile(options ); //props: {{ message: 'About page' }}  , beforeEnter: requiresRole('Admin')
                 WriteCsServiceFile(options.ServiceObjectType, service.Render(), serviceFolder, true);
                 WriteCsModelFile(options.ResponseObjectType, responseObject.Render(), responseFolder, true);
                 WriteCsModelFile(options.RequestObjectType, requestObject.Render(), requestFolder, true);
@@ -46,7 +48,7 @@ namespace KittyHelper
             }
 
             public ProjectWriter(string projectRoot, string projectServiceModelRoot, string projectServiceInterfaceRoot,
-                string projectVueViewRoot, string ServiceBaseNameSpace, string ModelBaseNamespace)
+                string projectVueViewRoot, string ServiceBaseNameSpace, string ModelBaseNamespace, string projectRouterFilePath)
             {
                 var tmp = projectRoot;
                 if (!tmp.EndsWith(Path.DirectorySeparatorChar))
@@ -57,10 +59,12 @@ namespace KittyHelper
                 this.ModelBaseNamespace = ModelBaseNamespace;
                 _projectServiceModelRoot = projectServiceModelRoot;
                 _projectServiceInterfaceRoot = projectServiceInterfaceRoot;
+                ProjectRouterFilePath = projectRouterFilePath;
             }
 
             public string ProjectRoot { get; }
             public string ProjectVueViewRoot { get; }
+            public string ProjectRouterFilePath { get; }
             public string ServiceBaseNameSpace { get; }
             public string ModelBaseNamespace { get; }
 
@@ -94,7 +98,20 @@ namespace KittyHelper
                     return;
                 File.WriteAllText(filepath, migrationClassContents);
             }
+            public void WriteVueRouterFile<T>(CreateOptions<T> options, bool Admin = false, object Props=null,  bool overWrite=true)
+            {
+                string vueFileContents = @$"{Environment.NewLine}  export const {options.ComponentName} =  {{ component: ()=>import('@/Views/{options.VueRouterDirectory}/{options.ComponentName}.vue'), path: ""/{options.ComponentName.ToLower()}"", }}";
 
+                if (File.Exists(ProjectRouterFilePath))
+                {
+                    var existingContent = File.ReadAllText(ProjectRouterFilePath);
+                    if (existingContent.Contains($@"'@/Views/{options.VueRouterDirectory}/{options.ComponentName}.vue"))
+                    {
+                        return;
+                    }
+                }
+                File.AppendAllText(ProjectRouterFilePath, vueFileContents);
+            }
             public void WriteVueFile(Type type, string vueFileName, string vueFileContents, bool overWrite)
             {
                 var FolderPath = $"{ProjectVueViewRoot}{type.Name}{Path.DirectorySeparatorChar}";

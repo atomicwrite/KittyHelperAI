@@ -30,7 +30,7 @@ namespace KittyHelper
                 public override string Render()
                 {
                     var decoratorString = string.Join(Environment.NewLine, decorators.Select(a => a.Render()));
-                    var parameterSTring = string.Join(Environment.NewLine, vueParameters.Select(a => a.Render()));
+                    var parameterSTring = string.Join(",", vueParameters.Select(a => a.Render()));
                     var blocks = string.Join(Environment.NewLine, block.Select(a => a.Render()));
                     var asy = async ? "async" : "";
                     return $@"

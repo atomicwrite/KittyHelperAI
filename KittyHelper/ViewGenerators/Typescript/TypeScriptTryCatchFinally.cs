@@ -30,7 +30,7 @@ namespace KittyHelper
                     var finallyBlock = @finally.Select(a => a.Render()).Join(System.Environment.NewLine);
                     return @$"try {{
                             {tryBlock}
-                            }}catch({exceptionName}){{ 
+                            }}catch({exceptionName} : any){{ 
                         {catchBlock}
                 }}finally{{  
                         {finallyBlock}

@@ -69,6 +69,7 @@ namespace KittyHelper
                 TypeScriptStatement[] block = new TypeScriptStatement[]
                 {
                     superCall,
+                    ";",
                      new TypescriptFunctionCall("Object.assign",new TypeScriptFunctionArguments[]{
                          new TypeScriptFunctionArguments("this"),
                          new TypeScriptFunctionArguments("originalObject")

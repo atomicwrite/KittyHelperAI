@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Text;
 using KittyHelper.Options;
 using KittyHelper.ServiceGenerators.CS;
 using ServiceStack.Script;
@@ -93,8 +95,22 @@ namespace KittyHelper
 
         protected virtual CStyleStatement GenerateDatabaseMethod()
         {
-            return
-                $" var data= Db.Select<{typeof(T).Name}>(a=>a.{options.DbModelIdfield}  > request.{options.RequestObjectAfterField});";
+
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine(@$"
+                var sqlStatement = Db.From<{typeof(T).Name}>().Where(a=>a.{options.DbModelIdfield}  > request.{options.RequestObjectAfterField});
+                  
+                ");
+            foreach(var field in options.SearchFields)
+            {
+                sb.AppendLine(@$"
+                sqlStatement= sqlStatement.Where(a=>a.{field.Name}.Contains(request.{field.Name}));");
+            }
+            sb.Append($@"
+        var data = await Db.SelectAsync(sqlStatement);
+");
+            //SearchFields
+            return sb.ToString();
         }
 
         protected virtual string[] GenerateUsings()
@@ -128,17 +144,21 @@ namespace KittyHelper
                 CStyleClass(
                     $"IReturn<{options.ResponseObjectType}>", options.RequestObjectNamespace);
 
-            var requestObjectFields = new[]
+            var requestObjectFields = new List<CStyleClassField>(new[]
             {
                 new CStyleClassField(options.RequestObjectAfterField,
                     new CStyleTypeDeclaration("int"))
-            };
-
+            });
+            foreach (var field in options.SearchFields)
+            {
+     
+                requestObjectFields.Add(new CStyleClassField(field.Name, new CStyleTypeDeclaration(field.TypeName())));
+            }
             return new CStyleClass(options.RequestObjectType,
                 options.RequestObjectNamespace,
                 usings: usings,
                 extends: extends,
-                fields: requestObjectFields);
+                fields: requestObjectFields.ToArray());
         }
 
         public virtual CStyleClass CreateResponseType()

@@ -151,7 +151,7 @@ namespace KittyHelper
                 switch (fieldType)
                 {
                     case "String":
-                        return "text";
+                        return "string";
                     //StringBuilder.AppendLine(GenerateVueTextInput(field));
 
                     case "Int32":
@@ -165,7 +165,7 @@ namespace KittyHelper
                         return "datetime";
 
                     default:
-                        return "text";
+                        return "string";
                 }
             }
             public class CreateViewOptions

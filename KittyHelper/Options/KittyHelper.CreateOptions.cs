@@ -46,13 +46,15 @@ namespace KittyHelper.Options
         public string RequestObjectNamespace { get; set; }
         
         public string ServiceObjectNamespace { get; set; }
-
+        public   string VueRouterDirectory { get; set; }
         public string UserIdField { get; set; } = "UserId";
 
         public string HttpVerb { get; set; } = "Post";
         public string ResponseObjectType { get; set; }
         public string ServiceObjectType { get; set; }
         public string RequestObjectType { get; set; }
+
+ 
         public string RequestObjectName { get; set; } = "request";
 
         public string Annotations { get; set; } = "";
