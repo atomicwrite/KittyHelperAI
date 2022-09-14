@@ -41,7 +41,7 @@ namespace KittyHelper
 
                 StringBuilder.AppendLine("</div></section>");
                 StringBuilder.AppendLine("</template>");
-
+                StringBuilder.AppendLine("");
                 StringBuilder.AppendLine(@"<script lang=""ts"">");
                 StringBuilder.AppendLine($@"
 import {{Component, Vue,Watch}} from 'vue-property-decorator';

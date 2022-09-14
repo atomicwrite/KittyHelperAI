@@ -165,7 +165,13 @@ namespace KittyHelper
                             new TypeScriptStatement[] {" DataModel.Message = 'Created'",},
                             new TypeScriptStatement[] {" DataModel.Message = Response.Message;"})
                     },
-                    new TypeScriptStatement[] {" DataModel.Message = e.message;", "console.log(e)"})
+                    new TypeScriptStatement[] {" DataModel.Message = e.message;", "console.log(e)",
+                    "const fieldErrors = e.GetFieldErrors()",
+                    "if (fieldErrors){",
+                        //
+                    "}"
+                    },
+                    excType:"WebException")
             };
 
 

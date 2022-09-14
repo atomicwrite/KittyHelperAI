@@ -1,8 +1,7 @@
-﻿using System;
+﻿using KittyHelper.Options;
+using System;
 using System.Collections.Generic;
-using KittyHelper.DatabaseGenerators;
-using KittyHelper.Options;
-using ServiceStack;
+using System.Linq;
 using static KittyHelper.KittyHelper.KittyViewHelper;
 
 namespace KittyHelper
@@ -10,11 +9,11 @@ namespace KittyHelper
     public class ListVueGenerator<A> : ICreateAVueComponent
     {
         private readonly Type T;
-        private readonly CreateListEndPointOptions<A>_options;
+        private readonly CreateListEndPointOptions<A> _options;
         private readonly VueElement _root;
         private readonly string _maskTypeName;
 
-        public ListVueGenerator( CreateListEndPointOptions<A> options)
+        public ListVueGenerator(CreateListEndPointOptions<A> options)
         {
             T = typeof(A);
             _root = new VueElement(new VueTag("template"));
@@ -34,9 +33,10 @@ namespace KittyHelper
             foreach (var a in T.GetProperties())
             {
                 var vueBTh = new VueBTh(a.Name);
-                tr.AddChild(CreateListButtonGroup(vForObjectName));
+                if (a.GetCustomAttributesData().Any(b => b.AttributeType.Name == "PrimaryKeyAttribute"))
+                    vForTr.AddChild(CreateListButtonGroup(vForObjectName));
                 tr.AddChild(vueBTh);
-                vForTr.AddChild(new VueBTh($"{{{{ {a.Name} }}}}"));
+                vForTr.AddChild(new VueBTh($"{{{{ a.{a.Name} }}}}"));
             }
 
             table.AddChild(head);
@@ -48,19 +48,16 @@ namespace KittyHelper
 
         private void CreateListAllDisplay(VueElement containerDiv)
         {
-            var bAlert = new VueBAlert("{{  ApiCallMessage.Message }}", new VueAttribute(":show", "true"),
-                new VIf("ApiCallMessage.Message.length >0"));
+            var bAlert = new VueBAlert("{{  ApiCallMessage }}", new VueAttribute(":show", "true"),
+                new VIf("ApiCallMessage.length >0"));
 
-            var @group = CreatePagingGroup(T);
-
+            var @group = CreatePagingGroup(T, _options.SearchFields.Select(a => a.Name).ToArray());
 
             containerDiv.AddChild(new VueH4($"List {T.Name}"));
 
             containerDiv.AddChild(bAlert);
 
-
             containerDiv.AddChild(group);
-
 
             containerDiv.AddChild(CreateListVForDisplayAsTable());
         }
@@ -95,10 +92,8 @@ namespace KittyHelper
 
             TypeScriptClass componentClass = CreateListAllComponentClass(apiMixin);
 
-
             script.VueClass.Add(maskMixin);
             script.VueClass.Add(apiMixin);
-
 
             script.VueClass.Add(componentClass);
 
@@ -114,8 +109,8 @@ namespace KittyHelper
                   new TypeScriptClassField("After", new TypescriptTypeDeclaration("number"),"0"),
             };
             VueClassProp ComponentProp = new VueClassProp("Component", "{ components: {}}");
-            var componentClass = new TypeScriptClass(_options.ComponentName, new[] {ComponentProp}, null, null,
-                new[] {apiMixin}, null, null, classFields);
+            var componentClass = new TypeScriptClass(_options.ComponentName, new[] { ComponentProp }, null, null,
+                new[] { apiMixin }, null, null, classFields);
             return componentClass;
         }
 
@@ -171,38 +166,41 @@ namespace KittyHelper
                         new TypescriptAssignment(
                             new TypescriptVariable("const", "Response",
                                 new TypescriptType(_options.ResponseObjectType)), apiCallStatement),
-                        " this.ApiCallSuccess = Response.Success;", 
+                        " this.ApiCallSuccess = Response.Success;",
                         " this.ApiCallMessage = Response.Message;",
                         $" if ( Response.Success) {{",
-             
-                        $" Response.{_options.ResponseObjectFieldName}.forEach(DataModel.append)",
+
+                        $" Response.{_options.ResponseObjectFieldName}.map(a => new {_maskTypeName}(a)).forEach(a=>DataModel.push(a))",
                         "}"
                     },
-                    new TypeScriptStatement[] {" DataModel.Message = e.message;", "console.log(e)"})
+                    new TypeScriptStatement[] { " this.ApiCallMessage = e.message;", "console.log(e)"})
             };
             var apiSuccessField =
                 new TypeScriptClassField("ApiCallSuccess", new TypescriptTypeDeclaration("boolean"), "true");
             var apiMessageField =
                 new TypeScriptClassField("ApiCallMessage", new TypescriptTypeDeclaration("string"), "\"\"");
+            var classFields = new List<TypeScriptClassField>(new TypeScriptClassField[]
+                {
+                    apiSuccessField,
+                    apiMessageField
+                });
+            List<TypeScriptParameter> listParamaters = new List<TypeScriptParameter>(new[] { new TypeScriptParameter("DataModel", new TypescriptTypeDeclaration(_maskTypeName + "[]")),
+                 new TypeScriptParameter("After", new TypescriptTypeDeclaration("number")),
+            });
 
-            List< TypeScriptParameter> listParamaters = new List<TypeScriptParameter>( new [] { new TypeScriptParameter("DataModel", new TypescriptTypeDeclaration(_maskTypeName + "[]")) });
-            
             foreach (var field in _options.SearchFields)
             {
-                listParamaters.Add(new TypeScriptParameter(field.Name, new TypescriptTypeDeclaration(TypeToInput(field.TypeName()))));
+                listParamaters.Add(new TypeScriptParameter(field.Name, new TypescriptTypeDeclaration(TypeToparam(field.TypeName()))));
+                classFields.Add(new TypeScriptClassField(field.Name, new TypescriptTypeDeclaration(TypeToparam(field.TypeName())), TypeToparamdefaultValue(field.TypeName())));
             }
             var createFunction = new TypeScriptFunction("List" + T.Name,
                 new TypescriptTypeDeclaration(new TypescriptType(null)),
                 true, listParamaters.ToArray(),
                 block);
-
-            var apiMixin = new TypeScriptClass(T.Name + "ApiMixin",
-                functions: new TypeScriptFunction[] {createFunction}, extends: TypeScriptClass.Vue,
-                fields: new TypeScriptClassField[]
-                {
-                    apiSuccessField,
-                    apiMessageField
-                });
+            VueClassProp ComponentProp = new VueClassProp("Component", "{ components: {}}");
+            var apiMixin = new TypeScriptClass(T.Name + "ApiMixin", classProps: new[] { ComponentProp },
+                functions: new TypeScriptFunction[] { createFunction }, extends: TypeScriptClass.Vue,
+                fields: classFields.ToArray());
             apiMixin.ExportNonDefault();
             return apiMixin;
         }

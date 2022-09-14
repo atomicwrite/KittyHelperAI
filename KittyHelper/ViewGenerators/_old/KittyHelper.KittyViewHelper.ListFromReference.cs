@@ -142,16 +142,22 @@ namespace KittyHelper
             {
                 BButtonGroup group = new BButtonGroup();
                 @group.AddChild(new BButton("Edit", new VueClickAttribute($"GotoEdit({VForObjectName})")));
-                @group.AddChild(new BButton("Edit", new VueClickAttribute($"Delete({VForObjectName})")));
+                @group.AddChild(new BButton("Delete", new VueClickAttribute($"Delete({VForObjectName})")));
 
                 return @group;
             }
 
-            public static BButtonGroup CreatePagingGroup(Type T)
+            public static BButtonGroup CreatePagingGroup(Type T, string[] SearchFields = null)
             {
                 BButtonGroup group = new BButtonGroup();
                 @group.AddChild(new BButton("Previous", new VueClickAttribute("Previous")));
-                @group.AddChild(new BButton("{{After}}", new VueClickAttribute($"List{T.Name}")));
+                if(SearchFields == null || SearchFields.Length ==0)
+                    @group.AddChild(new BButton("{{After}}", new VueClickAttribute($"List{T.Name}(DataModel,After)")));
+                else
+                {
+                    
+                    @group.AddChild(new BButton("{{After}}", new VueClickAttribute($"List{T.Name} (DataModel,After,{string.Join(",",SearchFields)})")));
+                }
                 @group.AddChild(new BButton("Next", new VueClickAttribute("Next")));
                 return @group;
             }

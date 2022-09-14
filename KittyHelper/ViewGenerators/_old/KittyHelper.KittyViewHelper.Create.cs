@@ -145,8 +145,29 @@ namespace KittyHelper
                 apiMixin.ExportNonDefault();
                 return apiMixin;
             }
+            public static string TypeToparamdefaultValue(string fieldType)
+            {
+                switch (fieldType)
+                {
+                    case "String":
+                        return "\"\"";
+                    //StringBuilder.AppendLine(GenerateVueTextInput(field));
 
-            public static string TypeToInput(string fieldType)
+                    case "Int32":
+                    case "Int64":
+                    case "Double":
+                    case "Float":
+                        return "0";
+
+
+                    case "DateTime":
+                        return "new Date()";
+
+                    default:
+                        return "null";
+                }
+            }
+            public static string TypeToparam(string fieldType)
             {
                 switch (fieldType)
                 {
@@ -166,6 +187,28 @@ namespace KittyHelper
 
                     default:
                         return "string";
+                }
+            }
+            public static string TypeToInput(string fieldType)
+            {
+                switch (fieldType)
+                {
+                    case "String":
+                        return "text";
+                    //StringBuilder.AppendLine(GenerateVueTextInput(field));
+
+                    case "Int32":
+                    case "Int64":
+                    case "Double":
+                    case "Float":
+                        return "number";
+
+
+                    case "DateTime":
+                        return "datetime";
+
+                    default:
+                        return "text";
                 }
             }
             public class CreateViewOptions

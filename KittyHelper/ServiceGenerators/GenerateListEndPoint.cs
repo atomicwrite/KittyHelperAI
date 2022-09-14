@@ -89,7 +89,9 @@ namespace KittyHelper
             return new CStyleObject(options.ResponseObjectType,
                 new CStyleObjectInitalizer[]
                 {
-                    new CStyleObjectInitalizer(options.ResponseObjectFieldName, "data")
+                    new CStyleObjectInitalizer(options.ResponseObjectFieldName, "data"),
+                    new CStyleObjectInitalizer("Success", "true"),
+                         new CStyleObjectInitalizer("Message", "\"\""),
                 });
         }
 
@@ -173,9 +175,9 @@ namespace KittyHelper
                 new CStyleClassField("Count",
                     new CStyleTypeDeclaration("long")),
                 new CStyleClassField("Message",
-                    new CStyleTypeDeclaration("string")),
+                    new CStyleTypeDeclaration("string"),"\"\""),
                 new CStyleClassField("Success",
-                    new CStyleTypeDeclaration("bool")),
+                    new CStyleTypeDeclaration("bool"),"true"),
                 new CStyleClassField(options.ResponseObjectFieldName,
                     new CStyleTypeDeclaration($"List<{typeof(T).Name}>")),
             };
