@@ -151,7 +151,7 @@ namespace KittyHelper
                 new CStyleClassField("Message",
                     new CStyleTypeDeclaration("string")),
                 new CStyleClassField("Success",
-                    new CStyleTypeDeclaration("bool")),
+                    new CStyleTypeDeclaration("bool"),"true"),
                     new CStyleClassField("ResponseStatus",
                     new CStyleTypeDeclaration("ResponseStatus")),
             };

@@ -141,12 +141,25 @@ namespace KittyHelper
             public static BButtonGroup CreateListButtonGroup(string VForObjectName)
             {
                 BButtonGroup group = new BButtonGroup();
-                @group.AddChild(new BButton("Edit", new VueClickAttribute($"GotoEdit({VForObjectName})")));
+                @group.AddChild(new BButton("Edit", new VueClickAttribute($"Edit({VForObjectName})")));
                 @group.AddChild(new BButton("Delete", new VueClickAttribute($"Delete({VForObjectName})")));
 
                 return @group;
             }
+            public static BForm CreateSearchFilter( string[] SearchFields = null)
+            {
+                BForm group = new();
+                foreach(var item in SearchFields)
+                {
+                    var formLabel = new VueElement(new VueTag("label",new VueAttribute("class","sr-only"),new VueAttribute("for",item+"Id")),item);
+                    var formInput= new BFormInput(new VModelAttribute(item),new VueAttribute("id", item + "Id"));
+                    group.AddChild(formLabel);
+                    group.AddChild(formInput);
 
+                }
+ 
+                return @group;
+            }
             public static BButtonGroup CreatePagingGroup(Type T, string[] SearchFields = null)
             {
                 BButtonGroup group = new BButtonGroup();

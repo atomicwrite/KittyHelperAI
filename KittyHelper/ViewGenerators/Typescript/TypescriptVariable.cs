@@ -21,7 +21,7 @@ namespace KittyHelper
                 }
                 public override string Render()
                 {
-                    string typeStr = type.Render();
+                    string typeStr = type?.Render();
                     
                     return $"{init} {name} {typeStr}";
                 }

@@ -36,7 +36,9 @@ namespace KittyHelper
                 if (a.GetCustomAttributesData().Any(b => b.AttributeType.Name == "PrimaryKeyAttribute"))
                     vForTr.AddChild(CreateListButtonGroup(vForObjectName));
                 tr.AddChild(vueBTh);
-                vForTr.AddChild(new VueBTh($"{{{{ a.{a.Name} }}}}"));
+                VueTd td = new VueTd($"{{{{ a.{a.Name} }}}}");
+
+                vForTr.AddChild(td);
             }
 
             table.AddChild(head);
@@ -49,16 +51,17 @@ namespace KittyHelper
         private void CreateListAllDisplay(VueElement containerDiv)
         {
             var bAlert = new VueBAlert("{{  ApiCallMessage }}", new VueAttribute(":show", "true"),
-                new VIf("ApiCallMessage.length >0"));
+                new VIf("ApiCallMessage && ApiCallMessage.length >0"));
 
-            var @group = CreatePagingGroup(T, _options.SearchFields.Select(a => a.Name).ToArray());
-
+            string[] searchFields = _options.SearchFields.Select(a => a.Name).ToArray();
+            var @group = CreatePagingGroup(T, searchFields);
+            var searchGroup = CreateSearchFilter(searchFields);
             containerDiv.AddChild(new VueH4($"List {T.Name}"));
 
             containerDiv.AddChild(bAlert);
 
             containerDiv.AddChild(group);
-
+            containerDiv.AddChild(searchGroup);
             containerDiv.AddChild(CreateListVForDisplayAsTable());
         }
 
@@ -90,27 +93,39 @@ namespace KittyHelper
             TypeScriptClass apiMixin = CreateListAllMixin();
             TypeScriptClass maskMixin = CreateListAllMaskForType();
 
-            TypeScriptClass componentClass = CreateListAllComponentClass(apiMixin);
+            TypeScriptClass dataFieldsClass = CreateListDataFieldsMixin(apiMixin);
+            TypeScriptClass componentClass = CreateListAllComponentClass(dataFieldsClass);
 
             script.VueClass.Add(maskMixin);
             script.VueClass.Add(apiMixin);
-
+            script.VueClass.Add(dataFieldsClass);
             script.VueClass.Add(componentClass);
 
             return baseComponent;
         }
 
-        protected virtual TypeScriptClass CreateListAllComponentClass(TypeScriptClass apiMixin)
+        protected virtual TypeScriptClass CreateListAllComponentClass(TypeScriptClass dataFieldsClass)
         {
-            var classFields = new TypeScriptClassField[]
-            {
-                new TypeScriptClassField("DataModel", new TypescriptTypeDeclaration(_maskTypeName + "[]"),
-                    "[]"),
-                  new TypeScriptClassField("After", new TypescriptTypeDeclaration("number"),"0"),
-            };
-            VueClassProp ComponentProp = new VueClassProp("Component", "{ components: {}}");
-            var componentClass = new TypeScriptClass(_options.ComponentName, new[] { ComponentProp }, null, null,
-                new[] { apiMixin }, null, null, classFields);
+            var createblock = new TypeScriptStatement[]
+       {           new TypescriptFunctionCall("this.Load" + T.Name )       };
+            var deleteblock = new TypeScriptStatement[] { new TypescriptFunctionCall("this.$router.push", new TypeScriptFunctionArguments[] { new TypeScriptFunctionArguments($"'Delete{T.Name}'") }) }; var editblock = new TypeScriptStatement[]
+{
+           new TypescriptFunctionCall("this.$router.push", new TypeScriptFunctionArguments[] { new TypeScriptFunctionArguments($"'Edit{T.Name}'") })
+};
+
+            var previousFunction = new TypeScriptFunction("Previous", new TypescriptTypeDeclaration(new TypescriptType(null)), async: true, vueParameters: Array.Empty<TypeScriptParameter>(), block: createblock);
+            var nextFunction = new TypeScriptFunction("Next", new TypescriptTypeDeclaration(new TypescriptType(null)), async: true, vueParameters: Array.Empty<TypeScriptParameter>(), createblock);
+
+            var editFunction = new TypeScriptFunction("Edit", new TypescriptTypeDeclaration(new TypescriptType(null)), async: true, vueParameters: Array.Empty<TypeScriptParameter>(), block: editblock);
+            var deleteFunction = new TypeScriptFunction("Delete", new TypescriptTypeDeclaration(new TypescriptType(null)), async: true, vueParameters: Array.Empty<TypeScriptParameter>(), deleteblock);
+            var createEventFunction = new TypeScriptFunction("created", new TypescriptTypeDeclaration(new TypescriptType(null)), async: true, vueParameters: Array.Empty<TypeScriptParameter>(), createblock);
+            var classFields = Array.Empty<TypeScriptClassField>();
+            TypeScriptFunction[] mixinFunctions = new TypeScriptFunction[] { previousFunction, nextFunction, createEventFunction, deleteFunction, editFunction };
+            VueClassProp ComponentProp = new("Component", "{ components: {}}");
+            VueClassProp[] classProps = new[] { ComponentProp };
+            TypeScriptClass[] mixins = new[] { dataFieldsClass };
+            var componentClass = new TypeScriptClass(_options.ComponentName, classProps: classProps, functions: mixinFunctions, mixins: mixins, fields: classFields);
+
             return componentClass;
         }
 
@@ -149,12 +164,61 @@ namespace KittyHelper
             return maskMixin;
         }
 
-        protected virtual TypeScriptClass CreateListAllMixin()
+        protected virtual TypeScriptClass CreateListDataFieldsMixin(TypeScriptClass apiMixin)
         {
             TypeScriptFunctionArguments[] functionArguments = new TypeScriptFunctionArguments[]
             {
-                new TypeScriptFunctionArguments(
-                    $"new {_options.RequestObjectType}  ( {{ {_options.RequestObjectAfterField} : {_options.ComponentAfterFieldName} }} ) ")
+            };
+
+            var functionCallParams = new List<TypeScriptFunctionArguments>() { new TypeScriptFunctionArguments("this.DataModel"), new TypeScriptFunctionArguments("this.After") };
+            foreach (var field in _options.SearchFields)
+            {
+                functionCallParams.Add(new TypeScriptFunctionArguments("this." + field.Name));
+            }
+            var block = new TypeScriptStatement[]        {
+            new TypescriptAssignment(new TypescriptVariable("","this.DataModel",null)
+            ,new TypescriptFunctionCall($"this.List{T.Name}",functionCallParams .ToArray(),true)                    )
+            };
+            var classFields = new List<TypeScriptClassField>()
+        {
+                new TypeScriptClassField("DataModel", new TypescriptTypeDeclaration(_maskTypeName + "[]"),
+                    "[]"),
+                  new TypeScriptClassField("After", new TypescriptTypeDeclaration("number"),"0"),
+        };
+            List<TypeScriptParameter> listParamaters = new List<TypeScriptParameter>();
+
+            foreach (var field in _options.SearchFields)
+            {
+                classFields.Add(new TypeScriptClassField(field.Name, new TypescriptTypeDeclaration(TypeToparam(field.TypeName())), TypeToparamdefaultValue(field.TypeName())));
+            }
+            var createFunction = new TypeScriptFunction("Load" + T.Name,
+                new TypescriptTypeDeclaration(new TypescriptType(null)),
+                true, listParamaters.ToArray(),
+                block);
+            VueClassProp ComponentProp = new VueClassProp("Component", "{ components: {}}");
+            var dataMixin = new TypeScriptClass(T.Name + "DataFields", classProps: new[] { ComponentProp },
+
+                functions: new TypeScriptFunction[] { createFunction }, mixins: new TypeScriptClass[] { apiMixin },
+                fields: classFields.ToArray());
+            dataMixin.ExportNonDefault();
+            return dataMixin;
+        }
+
+        protected virtual TypeScriptClass CreateListAllMixin()
+        {
+            // $"new {_options.RequestObjectType}  ( {{ {_options.RequestObjectAfterField} : {_options.ComponentAfterFieldName} }} ) "
+            var initalizers = new List<TypeScriptObjectInitalizer>() { new TypeScriptObjectInitalizer(_options.RequestObjectAfterField, _options.ComponentAfterFieldName) };
+            
+            foreach (var field in _options.SearchFields)
+            {
+                initalizers.Add(new TypeScriptObjectInitalizer(field.Name, field.Name));
+            }
+            var requestObject = new TypeScriptObject(_options.RequestObjectType,new TypeScriptFunctionArguments[] { new TypeScriptFunctionArguments(new TypeScriptObject(initalizers.ToArray())) });
+            TypeScriptFunctionArguments apicallArguments = new TypeScriptFunctionArguments(requestObject);
+
+            TypeScriptFunctionArguments[] functionArguments = new TypeScriptFunctionArguments[]
+            {
+                apicallArguments
             };
             var apiCallStatement =
                 new TypescriptFunctionCall($"client.{_options.HttpVerb.ToLower()}", functionArguments, true);
@@ -170,10 +234,11 @@ namespace KittyHelper
                         " this.ApiCallMessage = Response.Message;",
                         $" if ( Response.Success) {{",
 
-                        $" Response.{_options.ResponseObjectFieldName}.map(a => new {_maskTypeName}(a)).forEach(a=>DataModel.push(a))",
-                        "}"
+                        $"return  Response.{_options.ResponseObjectFieldName}.map(a => new {_maskTypeName}(a))",
+                        "}",
+                        " return []"
                     },
-                    new TypeScriptStatement[] { " this.ApiCallMessage = e.message;", "console.log(e)"})
+                    new TypeScriptStatement[] { " this.ApiCallMessage = e.message;", "console.log(e); return []"})
             };
             var apiSuccessField =
                 new TypeScriptClassField("ApiCallSuccess", new TypescriptTypeDeclaration("boolean"), "true");
@@ -191,7 +256,7 @@ namespace KittyHelper
             foreach (var field in _options.SearchFields)
             {
                 listParamaters.Add(new TypeScriptParameter(field.Name, new TypescriptTypeDeclaration(TypeToparam(field.TypeName()))));
-                classFields.Add(new TypeScriptClassField(field.Name, new TypescriptTypeDeclaration(TypeToparam(field.TypeName())), TypeToparamdefaultValue(field.TypeName())));
+                //    classFields.Add(new TypeScriptClassField(field.Name, new TypescriptTypeDeclaration(TypeToparam(field.TypeName())), TypeToparamdefaultValue(field.TypeName())));
             }
             var createFunction = new TypeScriptFunction("List" + T.Name,
                 new TypescriptTypeDeclaration(new TypescriptType(null)),

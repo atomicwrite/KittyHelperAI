@@ -21,8 +21,12 @@ namespace KittyHelper
             {
                 public static VueTd Default => new VueTd();
 
-                public VueTd(params VueAttribute[] attributes) : base(
+                public VueTd( params VueAttribute[] attributes) : base(
                     new VueTag("b-td", attributes))
+                {
+                }
+                public VueTd(string textContent , params VueAttribute[] attributes) : base(
+                    new VueTag("b-td",  attributes),textContent)
                 {
                 }
             }

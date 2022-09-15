@@ -5,14 +5,11 @@
 
         public static partial class KittyViewHelper
         {
-
-            
-
-            public class BButtonGroup : VueElement
+            public class BForm : VueElement
             {
-                public BButtonGroup( params VueAttribute[] attributes) : base(new VueTag("b-button-group", attributes))
+                public BForm(params VueAttribute[] attributes) : base(new VueTag("b-form", attributes))
                 {
-                    
+
                 }
             }
         }
