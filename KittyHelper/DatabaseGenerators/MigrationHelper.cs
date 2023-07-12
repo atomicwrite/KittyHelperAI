@@ -10,14 +10,14 @@ namespace KittyHelper.DatabaseGenerators
         {
             public static void AutoWireUp(IDbConnection dbConnection)
             {
-                var Types = AppDomain.CurrentDomain.GetAssemblies().SelectMany(x => x.GetTypes());
-                var Autos = Types
+                var types = AppDomain.CurrentDomain.GetAssemblies().SelectMany(x => x.GetTypes());
+                var autos = types
                     .Where(x => typeof(IHasTable4U).IsAssignableFrom(x) && !x.IsInterface && !x.IsAbstract)
-                    .Select(a => (IHasTable4U) Activator.CreateInstance(a)).OrderBy(a => a.Priority);
-                foreach (var Auto in Autos) Auto.TableUp(dbConnection);
+                    .Select(a => (IHasTable4U) Activator.CreateInstance(a)).OrderBy(a => a?.Priority);
+                foreach (var auto in autos) auto?.TableUp(dbConnection);
             }
 
-            public static string GenerateCreateIfNotExists(Type t, int CreatePriority = 4)
+            public static string GenerateCreateIfNotExists(Type t, int createPriority = 4)
             {
                 return $@" 
 
@@ -30,7 +30,7 @@ namespace MuhBot.Migrations
 {{
 
 public class {t.Name}Migration : IHasTable4U {{
-public int Priority {{get;set;}} = {CreatePriority};
+public int Priority {{get;set;}} = {createPriority};
 public void TableUp(IDbConnection Db){{
  if (!Db.TableExists<{t.Name}>())
                 {{
