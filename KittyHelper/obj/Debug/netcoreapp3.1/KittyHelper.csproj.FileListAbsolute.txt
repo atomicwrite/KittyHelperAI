@@ -1,5 +1,0 @@
-C:\Mine\KittyHelper\KittyHelper\KittyHelper\obj\Debug\netcoreapp3.1\KittyHelper.csproj.AssemblyReference.cache
-C:\Mine\KittyHelper\KittyHelper\KittyHelper\obj\Debug\netcoreapp3.1\KittyHelper.GeneratedMSBuildEditorConfig.editorconfig
-C:\Mine\KittyHelper\KittyHelper\KittyHelper\obj\Debug\netcoreapp3.1\KittyHelper.AssemblyInfoInputs.cache
-C:\Mine\KittyHelper\KittyHelper\KittyHelper\obj\Debug\netcoreapp3.1\KittyHelper.AssemblyInfo.cs
-C:\Mine\KittyHelper\KittyHelper\KittyHelper\obj\Debug\netcoreapp3.1\KittyHelper.csproj.CoreCompileInputs.cache
